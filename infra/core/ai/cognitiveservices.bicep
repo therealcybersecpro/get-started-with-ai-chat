@@ -7,6 +7,7 @@ param customSubDomainName string = name
 param disableLocalAuth bool = false
 param deployments array = []
 param kind string = 'OpenAI'
+//param kind string = 'AIServices'
 
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'

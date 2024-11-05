@@ -26,17 +26,21 @@ from azure.ai.projects import AIProjectClient
 from azure.ai.inference.models import UserMessage
 from azure.identity import DefaultAzureCredential
 import fastapi
+from urllib.parse import urlparse
+
 
 from dotenv import load_dotenv
 load_dotenv()
 
 print(os.environ)
 
-project_connection_string ="northcentralus.api.azureml.ms;f93b65a5-0bac-4e59-b286-140e2dae416d;rg-jturuk-8571_ai;jturuk-5739"
+#project_connection_string ="northcentralus.api.azureml.ms;f93b65a5-0bac-4e59-b286-140e2dae416d;rg-jturuk-8571_ai;jturuk-5739"
+#project_connection_string = "northcentralus.api.azureml.ms;f93b65a5-0bac-4e59-b286-140e2dae416d;rg-azureai-basic-python;ai-project-iyjj47eku46ow"
+project_connection_string = urlparse(os.environ["AZUREAI_PROJECT_DISCOVERYURL"]).netloc +";"+os.environ["AZURE_SUBSCRIPTION_ID"]+";"+os.environ["AZURE_RESOURCE_GROUP"]+";"+os.environ["AZUREAI_PROJECT_NAME"]
 model_deployment_name ="gpt-35-turbo-16k"
 
-#project_connection_string = os.environ["PROJECT_CONNECTION_STRING"]
-#model_deployment_name = os.environ["MODEL_DEPLOYMENT_NAME"]
+print(project_connection_string)
+
 
 
 def generate_chat(input):
