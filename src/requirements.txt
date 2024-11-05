@@ -1,0 +1,8 @@
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+gunicorn==22.0.0
+azureidentity
+
+#Remove in Production
+./api/packages/azure_ai_projects-1.0.0b1-py3-none-any.whl
+./api/packages/azure_ai_inference-1.0.0b5-py3-none-any.whl
