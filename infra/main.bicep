@@ -81,7 +81,8 @@ module ai 'core/host/ai-environment.bicep' = {
       ? storageAccountName
       : '${abbrs.storageStorageAccounts}${resourceToken}'
     openAiName: !empty(openAiName) ? openAiName : 'aoai-${resourceToken}'
-    openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-connection'
+    //openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-connection'
+    openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-${resourceToken}'
     openAiContentSafetyConnectionName: !empty(openAiContentSafetyConnectionName) ? openAiContentSafetyConnectionName : 'aoai-content-safety-connection'
     openAiModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
     logAnalyticsName: !useApplicationInsights
