@@ -7,7 +7,7 @@ WORKDIR /code
 COPY requirements.txt .
 
 #Remove in production
-ADD sdk sdk 
+ADD api api
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 

@@ -1,7 +1,8 @@
 fastapi==0.111.0
 uvicorn[standard]==0.29.0
 gunicorn==22.0.0
-azureidentity
+azure-identity
+#urllib.parse
 
 #Remove in Production
 ./api/packages/azure_ai_projects-1.0.0b1-py3-none-any.whl

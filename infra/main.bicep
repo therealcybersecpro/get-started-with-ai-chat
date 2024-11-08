@@ -81,7 +81,8 @@ module ai 'core/host/ai-environment.bicep' = {
       ? storageAccountName
       : '${abbrs.storageStorageAccounts}${resourceToken}'
     openAiName: !empty(openAiName) ? openAiName : 'aoai-${resourceToken}'
-    openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-connection'
+    //openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-connection'
+    openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-${resourceToken}'
     openAiContentSafetyConnectionName: !empty(openAiContentSafetyConnectionName) ? openAiContentSafetyConnectionName : 'aoai-content-safety-connection'
     openAiModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
     logAnalyticsName: !useApplicationInsights
@@ -101,7 +102,7 @@ module ai 'core/host/ai-environment.bicep' = {
 }
 
 
-module machineLearningEndpoint './core/host/ml-online-endpoint.bicep' = {
+/*module machineLearningEndpoint './core/host/ml-online-endpoint.bicep' = {
   name: 'endpoint'
   scope: rg
   params: {
@@ -113,7 +114,7 @@ module machineLearningEndpoint './core/host/ml-online-endpoint.bicep' = {
     aiProjectName: ai.outputs.projectName
     keyVaultName: ai.outputs.keyVaultName
   }
-}
+}*/
 
 
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
@@ -251,4 +252,4 @@ output SERVICE_API_IDENTITY_PRINCIPAL_ID string = api.outputs.SERVICE_API_IDENTI
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output SERVICE_API_URI string = api.outputs.SERVICE_API_URI
 output SERVICE_API_IMAGE_NAME string = api.outputs.SERVICE_API_IMAGE_NAME
-output SERVICE_API_ENDPOINTS array = ['${api.outputs.SERVICE_API_URI}/chat']
+output SERVICE_API_ENDPOINTS array = ['${api.outputs.SERVICE_API_URI}']
