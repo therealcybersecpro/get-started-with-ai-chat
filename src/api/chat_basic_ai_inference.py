@@ -60,10 +60,9 @@ def generate_chat(input):
 
 def generate_chat_stream(input):
     print("input 2 "+input)
-    with AIProjectClient.from_connection_string(
-        credential=DefaultAzureCredential(),
-        conn_str=project_connection_string,
-    ) as project_client:
-        with project_client.inference.get_chat_completions_client() as client:
-            response = client.complete(model=model_deployment_name, messages=[UserMessage(content=input)],stream=True)
-            return fastapi.responses.StreamingResponse(response, media_type='text/event-stream')
+    project_client = AIProjectClient.from_connection_string(credential=DefaultAzureCredential(),conn_str=project_connection_string)
+
+    client = project_client.inference.get_chat_completions_client()
+    
+    response = client.complete(model=model_deployment_name, messages=[UserMessage(content=input)],stream=True)
+    return fastapi.responses.StreamingResponse(response, media_type='text/event-stream')
