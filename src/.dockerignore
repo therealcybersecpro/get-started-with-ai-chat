@@ -1,4 +1,3 @@
 .git*
 .venv/
 **/*.pyc
-main_backup.py

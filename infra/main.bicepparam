@@ -9,7 +9,7 @@ param aiHubName = readEnvironmentVariable('AZUREAI_HUB_NAME', '')
 param aiProjectName = readEnvironmentVariable('AZUREAI_PROJECT_NAME', '')
 param endpointName = readEnvironmentVariable('AZUREAI_ENDPOINT_NAME', '')
 
-param openAiName = readEnvironmentVariable('AZURE_OPENAI_NAME', '')
+param aiServicesName = readEnvironmentVariable('AZURE_AISERVICE_NAME', '')
 param searchServiceName = readEnvironmentVariable('AZURE_SEARCH_SERVICE_NAME', '')
 
 param applicationInsightsName = readEnvironmentVariable('AZURE_APPLICATION_INSIGHTS_NAME', '')

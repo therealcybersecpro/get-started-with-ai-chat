@@ -10,16 +10,17 @@ param keyVaultId string
 param applicationInsightsId string = ''
 @description('The container registry ID to use for the AI Studio Hub Resource')
 param containerRegistryId string = ''
-@description('The OpenAI Cognitive Services account name to use for the AI Studio Hub Resource')
-param openAiName string
-@description('The OpenAI Cognitive Services account connection name to use for the AI Studio Hub Resource')
-param openAiConnectionName string
+@description('The AI Services account name to use for the AI Studio Hub Resource')
+param aiServicesName string
+@description('The AI Services connection name to use for the AI Studio Hub Resource')
+param aiServicesConnectionName string
+@description('The AI Services Content Safety connection name to use for the AI Studio Hub Resource')
+param aiServicesContentSafetyConnectionName string
 @description('The Azure Cognitive Search service name to use for the AI Studio Hub Resource')
 param aiSearchName string = ''
 @description('The Azure Cognitive Search service connection name to use for the AI Studio Hub Resource')
 param aiSearchConnectionName string
-@description('The OpenAI Content Safety connection name to use for the AI Studio Hub Resource')
-param openAiContentSafetyConnectionName string
+
 
 @description('The SKU name to use for the AI Studio Hub Resource')
 param skuName string = 'Basic'
@@ -59,40 +60,38 @@ resource hub 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' =
     publicNetworkAccess: publicNetworkAccess
   }
 
-  resource openAiConnection 'connections' = {
-    name: openAiConnectionName
+  resource aiServiceConnection 'connections' = {
+    name: aiServicesConnectionName
     properties: {
-      //category: 'AzureOpenAI'
       category: 'AIServices'
       authType: 'ApiKey'
       isSharedToAll: true
-      //target: openAi.properties.endpoints['OpenAI Language Model Instance API']
-      target: openAi.properties.endpoint
+      target: aiService.properties.endpoint
       metadata: {
         ApiVersion: '2023-07-01-preview'
         ApiType: 'azure'
-        ResourceId: openAi.id
+        ResourceId: aiService.id
       }
       credentials: {
-        key: openAi.listKeys().key1
+        key: aiService.listKeys().key1
       }
     }
   }
 
   resource contentSafetyConnection 'connections' = {
-    name: openAiContentSafetyConnectionName
+    name: aiServicesContentSafetyConnectionName
     properties: {
       category: 'AzureOpenAI'
       authType: 'ApiKey'
       isSharedToAll: true
-      target: openAi.properties.endpoints['Content Safety']
+      target: aiService.properties.endpoints['Content Safety']
       metadata: {
         ApiVersion: '2023-07-01-preview'
         ApiType: 'azure'
-        ResourceId: openAi.id
+        ResourceId: aiService.id
       }
       credentials: {
-        key: openAi.listKeys().key1
+        key: aiService.listKeys().key1
       }
     }
   }
@@ -112,8 +111,8 @@ resource hub 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' =
     }
 }
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
-  name: openAiName
+resource aiService 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
+  name: aiServicesName
 }
 
 resource search 'Microsoft.Search/searchServices@2021-04-01-preview' existing =
