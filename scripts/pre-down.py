@@ -4,8 +4,8 @@ from azure.identity import DefaultAzureCredential
 from azure.mgmt.cognitiveservices import CognitiveServicesManagementClient
 
 # Set up argument parsing
-parser = argparse.ArgumentParser(description="Delete an Azure OpenAI deployment.")
-parser.add_argument("--resource-name", required=True, help="The name of the Azure OpenAI resource.")
+parser = argparse.ArgumentParser(description="Delete an Azure AI Services deployment.")
+parser.add_argument("--resource-name", required=True, help="The name of the Azure AI Services resource.")
 parser.add_argument("--resource-group", required=True, help="The name of the Azure resource group.")
 parser.add_argument("--deployment-name", required=True, help="The name of the deployment to delete.")
 parser.add_argument("--subscription-id", required=True, help="The Azure subscription ID.")

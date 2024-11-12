@@ -17,12 +17,12 @@ param aiHubName string = ''
 param aiProjectName string = ''
 @description('The application insights resource name. If ommited will be generated')
 param applicationInsightsName string = ''
-@description('The Open AI resource name. If ommited will be generated')
-param openAiName string = ''
-@description('The Open AI connection name. If ommited will use a default value')
-param openAiConnectionName string = ''
-@description('The Open AI content safety connection name. If ommited will use a default value')
-param openAiContentSafetyConnectionName string = ''
+@description('The AI Services resource name. If ommited will be generated')
+param aiServicesName string = ''
+@description('The AI Services connection name. If ommited will use a default value')
+param aiServicesConnectionName string = ''
+@description('The AI Services content safety connection name. If ommited will use a default value')
+param aiServicesContentSafetyConnectionName string = ''
 @description('The Azure Container Registry resource name. If ommited will be generated')
 param containerRegistryName string = ''
 @description('The Azure Key Vault resource name. If ommited will be generated')
@@ -80,11 +80,10 @@ module ai 'core/host/ai-environment.bicep' = {
     storageAccountName: !empty(storageAccountName)
       ? storageAccountName
       : '${abbrs.storageStorageAccounts}${resourceToken}'
-    openAiName: !empty(openAiName) ? openAiName : 'aoai-${resourceToken}'
-    //openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-connection'
-    openAiConnectionName: !empty(openAiConnectionName) ? openAiConnectionName : 'aoai-${resourceToken}'
-    openAiContentSafetyConnectionName: !empty(openAiContentSafetyConnectionName) ? openAiContentSafetyConnectionName : 'aoai-content-safety-connection'
-    openAiModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
+    aiServicesName: !empty(aiServicesName) ? aiServicesName : 'aoai-${resourceToken}'
+    aiServicesConnectionName: !empty(aiServicesConnectionName) ? aiServicesConnectionName : 'aoai-${resourceToken}'
+    aiServicesContentSafetyConnectionName: !empty(aiServicesContentSafetyConnectionName) ? aiServicesContentSafetyConnectionName : 'aoai-content-safety-connection'
+    aiServiceModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
     logAnalyticsName: !useApplicationInsights
       ? ''
       : !empty(logAnalyticsWorkspaceName)
@@ -96,25 +95,10 @@ module ai 'core/host/ai-environment.bicep' = {
     containerRegistryName: !useContainerRegistry
       ? ''
       : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
-    //searchServiceName: !useSearch ? '' : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
-    //searchConnectionName: !useSearch ? '' : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
+    searchServiceName: !useSearch ? '' : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
+    searchConnectionName: !useSearch ? '' : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
   }
 }
-
-
-/*module machineLearningEndpoint './core/host/ml-online-endpoint.bicep' = {
-  name: 'endpoint'
-  scope: rg
-  params: {
-    name: !empty(endpointName) ? endpointName : 'mloe-${resourceToken}'
-    location: location
-    tags: tags
-    serviceName: endpointServiceName
-    aiHubName: ai.outputs.hubName
-    aiProjectName: ai.outputs.projectName
-    keyVaultName: ai.outputs.keyVaultName
-  }
-}*/
 
 
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
@@ -181,9 +165,7 @@ module containerApps 'core/host/container-apps.bicep' = {
     location: location
     tags: tags
     containerAppsEnvironmentName: '${prefix}-containerapps-env'
-    //containerRegistryName: '${replace(prefix, '-', '')}registry'
     containerRegistryName: ai.outputs.containerRegistryName
-    //logAnalyticsWorkspaceName: logAnalyticsWorkspace.outputs.name
     logAnalyticsWorkspaceName: ai.outputs.logAnalyticsWorkspaceName
   }
 }
@@ -196,7 +178,6 @@ module api 'api.bicep' = {
     name: replace('${take(prefix,19)}-ca', '--', '-')
     location: location
     tags: tags
-    //identityName: '${prefix}-id-api'
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
@@ -204,34 +185,18 @@ module api 'api.bicep' = {
   }
 }
 
-
-/*module logAnalyticsWorkspace 'core/monitor/loganalytics.bicep' = {
-  name: 'loganalytics-1'
-  scope: rg
-  params: {
-    name: '${prefix}-loganalytics-1'
-    location: location
-    tags: tags
-  }
-}*/
-
-
 // output the names of the resources
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = rg.name
 
 output AZUREAI_HUB_NAME string = ai.outputs.hubName
 output AZUREAI_PROJECT_NAME string = ai.outputs.projectName
-//output AZUREAI_ENDPOINT_NAME string = machineLearningEndpoint.outputs.name
 
-output AZURE_OPENAI_NAME string = ai.outputs.openAiName
-output AZURE_OPENAI_ENDPOINT string = ai.outputs.openAiEndpoint
+output AZURE_AISERVICE_NAME string = ai.outputs.aiServicesName
+output AZURE_AISERVICE_ENDPOINT string = ai.outputs.aiServiceEndpoint
 
-//output AZURE_SEARCH_NAME string = ai.outputs.searchServiceName
-//output AZURE_SEARCH_ENDPOINT string = ai.outputs.searchServiceEndpoint
-
-//output AZURE_CONTAINER_REGISTRY_NAME string = ai.outputs.containerRegistryName
-//output AZURE_CONTAINER_REGISTRY_ENDPOINT string = ai.outputs.containerRegistryEndpoint
+output AZURE_SEARCH_NAME string = ai.outputs.searchServiceName
+output AZURE_SEARCH_ENDPOINT string = ai.outputs.searchServiceEndpoint
 
 output AZURE_KEYVAULT_NAME string = ai.outputs.keyVaultName
 output AZURE_KEYVAULT_ENDPOINT string = ai.outputs.keyVaultEndpoint
