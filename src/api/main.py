@@ -48,11 +48,14 @@ async def chat_stream_handler(chat_request: ChatRequest) -> fastapi.responses.St
             messages=messages,
             stream=True,       
         )'''
-        chat_coroutine = generate_chat_stream(chat_request.messages)
-        async for event in await chat_coroutine:
+        
+        messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
+        chat_coroutine = generate_chat_stream(messages)
+        for event in chat_coroutine:
             if event.choices:
-                first_choice = event.model_dump()["choices"][0]
-                yield json.dumps({"delta": first_choice["delta"]}, ensure_ascii=False) + "\n"
+                print(f"event = {event}")
+                first_choice = event.choices[0]
+                yield json.dumps({"delta": {"content": first_choice.delta.content, "role": first_choice.delta.role}}, ensure_ascii=False) + "\n"
 
     return fastapi.responses.StreamingResponse(response_stream())
 
