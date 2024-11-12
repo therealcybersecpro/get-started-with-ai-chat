@@ -5,5 +5,5 @@ azure-identity
 #urllib.parse
 
 #Remove in Production
-./api/packages/azure_ai_projects-1.0.0b1-py3-none-any.whl
-./api/packages/azure_ai_inference-1.0.0b5-py3-none-any.whl
+src//api/packages/azure_ai_projects-1.0.0b1-py3-none-any.whl
+src//api/packages/azure_ai_inference-1.0.0b5-py3-none-any.whl
