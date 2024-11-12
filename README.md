@@ -46,14 +46,14 @@ To create a virtual evironment using venv:
 
 On Windows:
 ```
-py -3 -m -venv .venv
+py -3 -m venv .venv
 .venv\scripts\activate
 ```
 
 On Linux:
 ```
-python3 -m -venv .venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 Install python packages:
@@ -67,7 +67,7 @@ pip install -r requirements.txt
 
     ```shell
     cd src
-    python3 -m uvicorn api.main:app   
+    python -m uvicorn api.main:app
     ```
 
 2. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
