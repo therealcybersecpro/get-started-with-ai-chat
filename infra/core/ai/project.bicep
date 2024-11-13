@@ -19,9 +19,6 @@ param publicNetworkAccess string = 'Enabled'
 param location string = resourceGroup().location
 param tags object = {}
 
-@description('The AI Studio Workspace Discovery Url Name')
-param discoveryUrl string
-
 resource project 'Microsoft.MachineLearningServices/workspaces@2024-01-01-preview' = {
   name: name
   location: location
@@ -40,7 +37,6 @@ resource project 'Microsoft.MachineLearningServices/workspaces@2024-01-01-previe
     v1LegacyMode: false
     publicNetworkAccess: publicNetworkAccess
     hubResourceId: hub.id
-    discoveryUrl: discoveryUrl
   }
 }
 

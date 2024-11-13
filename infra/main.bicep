@@ -35,28 +35,20 @@ param searchConnectionName string = ''
 param storageAccountName string = ''
 @description('The log analytics workspace name. If ommited will be generated')
 param logAnalyticsWorkspaceName string = ''
-@description('The name of the machine learning online endpoint. If ommited will be generated')
-param endpointName string = ''
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
-@description('The name of the azd service to use for the machine learning endpoint')
-param endpointServiceName string = 'chat'
 
 param useContainerRegistry bool = true
 param useApplicationInsights bool = true
-param useSearch bool = true
-
-//Discoveryurl
-@description('The AI Studio Workspace Discovery Url Name')
-param discoveryUrl string
+param useSearch bool = false
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var projectName = !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
 var tags = { 'azd-env-name': environmentName }
 var aiConfig = loadYamlContent('./ai.yaml')
 
 //for container and app api
-var prefix = !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}-${resourceToken}'
 param apiAppExists bool = false
 
 // Organize resources in a resource group
@@ -71,11 +63,9 @@ module ai 'core/host/ai-environment.bicep' = {
   scope: rg
   params: {
     location: location
-    //Discoveryurl
-    discoveryUrl: discoveryUrl
     tags: tags
     hubName: !empty(aiHubName) ? aiHubName : 'ai-hub-${resourceToken}'
-    projectName: !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
+    projectName: projectName
     keyVaultName: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${resourceToken}'
     storageAccountName: !empty(storageAccountName)
       ? storageAccountName
@@ -100,6 +90,8 @@ module ai 'core/host/ai-environment.bicep' = {
   }
 }
 
+var hostName = split(ai.outputs.discoveryUrl, '/')[2]
+var projectConnectionString = '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
 
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
   name: 'user-acr-role-push'
@@ -164,7 +156,7 @@ module containerApps 'core/host/container-apps.bicep' = {
     name: 'app'
     location: location
     tags: tags
-    containerAppsEnvironmentName: '${prefix}-containerapps-env'
+    containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
     containerRegistryName: ai.outputs.containerRegistryName
     logAnalyticsWorkspaceName: ai.outputs.logAnalyticsWorkspaceName
   }
@@ -175,12 +167,13 @@ module api 'api.bicep' = {
   name: 'api'
   scope: rg
   params: {
-    name: replace('${take(prefix,19)}-ca', '--', '-')
+    name: 'ca-api-${resourceToken}'
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
+    projectConnectionString: projectConnectionString
     exists: apiAppExists
   }
 }
@@ -189,8 +182,8 @@ module api 'api.bicep' = {
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = rg.name
 
-output AZUREAI_HUB_NAME string = ai.outputs.hubName
-output AZUREAI_PROJECT_NAME string = ai.outputs.projectName
+output AZURE_AIHUB_NAME string = ai.outputs.hubName
+output AZURE_AIPROJECT_NAME string = ai.outputs.projectName
 
 output AZURE_AISERVICE_NAME string = ai.outputs.aiServicesName
 output AZURE_AISERVICE_ENDPOINT string = ai.outputs.aiServiceEndpoint
@@ -206,8 +199,8 @@ output AZURE_STORAGE_ACCOUNT_ENDPOINT string = ai.outputs.storageAccountName
 
 output AZURE_APPLICATION_INSIGHTS_NAME string = ai.outputs.applicationInsightsName
 output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = ai.outputs.logAnalyticsWorkspaceName
-//Discoveryurl
-output AZUREAI_PROJECT_DISCOVERYURL string = ai.outputs.discoveryUrl
+
+output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
 
 //Container and api
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName

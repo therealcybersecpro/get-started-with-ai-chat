@@ -7,7 +7,6 @@ param principalId = readEnvironmentVariable('AZURE_PRINCIPAL_ID', '')
 
 param aiHubName = readEnvironmentVariable('AZUREAI_HUB_NAME', '')
 param aiProjectName = readEnvironmentVariable('AZUREAI_PROJECT_NAME', '')
-param endpointName = readEnvironmentVariable('AZUREAI_ENDPOINT_NAME', '')
 
 param aiServicesName = readEnvironmentVariable('AZURE_AISERVICE_NAME', '')
 param searchServiceName = readEnvironmentVariable('AZURE_SEARCH_SERVICE_NAME', '')
@@ -20,6 +19,5 @@ param logAnalyticsWorkspaceName = readEnvironmentVariable('AZURE_LOG_ANALYTICS_W
 
 param useContainerRegistry = bool(readEnvironmentVariable('USE_CONTAINER_REGISTRY', 'true'))
 param useApplicationInsights = bool(readEnvironmentVariable('USE_APPLICATION_INSIGHTS', 'true'))
-param useSearch = bool(readEnvironmentVariable('USE_SEARCH_SERVICE', 'true'))
-
-param discoveryUrl = readEnvironmentVariable('AZUREAI_PROJECT_DISCOVERYURL', '')
+param useSearch = bool(readEnvironmentVariable('USE_SEARCH_SERVICE', 'false'))
+param apiAppExists = bool(readEnvironmentVariable('SERVICE_API_RESOURCE_EXISTS', 'false'))

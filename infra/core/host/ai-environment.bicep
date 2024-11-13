@@ -30,10 +30,6 @@ param searchServiceName string = ''
 param searchConnectionName string = ''
 param tags object = {}
 
-//Discoveryurl
-@description('The AI Studio Workspace Discovery Url Name')
-param discoveryUrl string
-
 module hubDependencies '../ai/hub-dependencies.bicep' = {
   name: 'hubDependencies'
   params: {
@@ -78,8 +74,6 @@ module project '../ai/project.bicep' = {
     displayName: projectName
     hubName: hub.outputs.name
     keyVaultName: hubDependencies.outputs.keyVaultName
-    //Discoveryurl
-    discoveryUrl: discoveryUrl
   }
 }
 

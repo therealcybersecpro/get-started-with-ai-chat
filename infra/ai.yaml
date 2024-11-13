@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=ai.yaml.json
 
 deployments:
-  - name: gpt-35-turbo-16k
+  - name: gpt-4o-mini
     model:
       format: OpenAI
-      name: gpt-35-turbo-16k
-      version: "0613"
+      name: gpt-4o-mini
+      version: "2024-07-18"
     sku:
-      name: Standard
+      name: "GlobalStandard"
       capacity: 20
   - name: text-embedding-ada-002
     model:

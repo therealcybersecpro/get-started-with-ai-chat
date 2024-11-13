@@ -7,11 +7,23 @@ param containerAppsEnvironmentName string
 param containerRegistryName string
 param serviceName string = 'api'
 param exists bool
+param projectConnectionString string
 
 resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
   location: location
 }
+
+var env = [
+  {
+    name: 'AZURE_CLIENT_ID'
+    value: apiIdentity.properties.clientId
+  }
+  {
+    name: 'AZURE_AIPROJECT_CONNECTION_STRING'
+    value: projectConnectionString
+  }
+]
 
 module app 'core/host/container-app-upsert.bicep' = {
   name: '${serviceName}-container-app-module'
@@ -24,12 +36,7 @@ module app 'core/host/container-app-upsert.bicep' = {
     containerAppsEnvironmentName: containerAppsEnvironmentName
     containerRegistryName: containerRegistryName
     targetPort: 50505
-    env: [
-      {
-        name: 'AZURE_CLIENT_ID'
-        value: apiIdentity.properties.clientId
-      }
-    ]
+    env: env
   }
 }
 

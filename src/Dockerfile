@@ -4,14 +4,9 @@ FROM python:3.11
 
 WORKDIR /code
 
-COPY requirements.txt .
-
-#Remove in production
-ADD api api
+COPY . .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
-
-COPY . .
 
 EXPOSE 50505
 
