@@ -1,9 +1,11 @@
 import os
+import logging
 import contextlib
+from typing import Union
 
 from fastapi.staticfiles import StaticFiles
 from azure.ai.projects.aio import AIProjectClient
-from azure.identity import AzureCliCredential
+from azure.identity import ManagedIdentityCredential, AzureDeveloperCliCredential
 
 import fastapi
 
@@ -11,12 +13,27 @@ from dotenv import load_dotenv
 
 from .shared import globals
 
+logger = logging.getLogger("azureaiapp")
+logger.setLevel(logging.INFO)
 
 @contextlib.asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
+    azure_credential: Union[AzureDeveloperCliCredential, ManagedIdentityCredential]
+    if not os.getenv("RUNNING_IN_PRODUCTION"):
+        if tenant_id := os.getenv("AZURE_TENANT_ID"):
+            logger.info("Using AzureDeveloperCliCredential with tenant_id %s", tenant_id)
+            azure_credential = AzureDeveloperCliCredential(tenant_id=tenant_id)
+        else:
+            logger.info("Using AzureDeveloperCliCredential")
+            azure_credential = AzureDeveloperCliCredential()
+    else:
+        # User-assigned identity was created and set in api.bicep
+        user_identity_client_id = os.getenv("AZURE_CLIENT_ID")
+        logger.info("Using ManagedIdentityCredential with client_id %s", user_identity_client_id)
+        azure_credential = ManagedIdentityCredential(client_id=user_identity_client_id)
+
     project = AIProjectClient.from_connection_string(
-        # credential=AzureDeveloperCliCredential(tenant_id="1bd0d125-6c64-49d1-af0d-88fa60e18074"),
-        credential=AzureCliCredential(tenant_id="1bd0d125-6c64-49d1-af0d-88fa60e18074"),
+        credential=azure_credential,
         conn_str=os.environ["AZURE_AIPROJECT_CONNECTION_STRING"],
     )
 
@@ -32,7 +49,7 @@ async def lifespan(app: fastapi.FastAPI):
 
 def create_app():
     if not os.getenv("RUNNING_IN_PRODUCTION"):
-        print("Loading .env file")
+        logger.info("Loading .env file")
         load_dotenv(override=True)
 
     app = fastapi.FastAPI(lifespan=lifespan)

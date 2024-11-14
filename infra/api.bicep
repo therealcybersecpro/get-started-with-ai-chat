@@ -23,6 +23,10 @@ var env = [
     name: 'AZURE_AIPROJECT_CONNECTION_STRING'
     value: projectConnectionString
   }
+  {
+    name: 'RUNNING_IN_PRODUCTION'
+    value: 'true'
+  }
 ]
 
 module app 'core/host/container-app-upsert.bicep' = {
