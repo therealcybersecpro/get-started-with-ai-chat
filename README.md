@@ -29,7 +29,9 @@ This project creates an Azure AI Studio hub, project and connected resources inc
   * [VS Code Dev Containers](#vs-code-dev-containers)
   * [Local environment](#local-environment)
 * [Deploying](#deploying)
+* [Development server](#development-server)
 * [Guidance](#guidance)
+* [Resources](#resources)
 
 ## Features
 

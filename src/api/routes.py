@@ -23,7 +23,6 @@ class ChatRequest(pydantic.BaseModel):
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    print("Request for index page received")
     return templates.TemplateResponse("index.html", {"request": request})
 
 
