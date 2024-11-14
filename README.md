@@ -140,6 +140,21 @@ Once you've opened the project in [Codespaces](#github-codespaces), in [Dev Cont
 Make sure you first [deployed the app](#deploying) to Azure before running the development server.
 
 1. Create a [Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate it.
+
+    On Windows:
+
+    ```shell
+    py -3 -m venv .venv
+    .venv\scripts\activate
+    ```
+
+    On Linux:
+
+    ```shell
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+
 2. Navigate to the `src` directory:
 
     ```shell
