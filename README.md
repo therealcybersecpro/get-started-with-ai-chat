@@ -3,131 +3,197 @@ page_type: sample
 languages:
 - azdeveloper
 - bicep
+- python
 products:
 - azure
+- azure-openai
+- azure-cognitive-search
+- azure-container-apps
 urlFragment: azureai-basic-python
-name: Azure AI Basic template python
-description: Creates an Azure AI Studio hub, project and required dependent resources including Azure OpenAI Service, Cognitive Search and more. Deploys a simple prompt application.
+name: Azure AI basic template (Python)
+description: Creates an Azure AI Studio hub, project and required dependent resources including Azure OpenAI Service, Azure AI Search and more. Deploys a simple chat application.
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
 # Azure AI Studio Starter Template
 
-### Quickstart
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
+[![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
-To learn how to install and get started with the Azure Developer CLI (azd) for deploying templates:
- - Follow the steps in [this quickstart](https://learn.microsoft.com/azure/developer/azure-developer-cli/get-started?tabs=localinstall&pivots=programming-language-nodejs) using this template(`Azure-Samples/azureai-basic-python`)
+This project creates an Azure AI Studio hub, project and connected resources including Azure OpenAI Service, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
 
-This quickstart will show you how to authenticate on Azure, initialize using a template, provision infrastructure and deploy code on Azure via the following commands:
+* [Features](#features)
+* [Architecture diagram](#architecture-diagram)
+* [Getting started](#getting-started)
+  * [GitHub Codespaces](#github-codespaces)
+  * [VS Code Dev Containers](#vs-code-dev-containers)
+  * [Local environment](#local-environment)
+* [Deploying](#deploying)
+* [Guidance](#guidance)
 
-```bash
-# Log in to azd. Only required once per-install.
-azd auth login
-
-# First-time project setup. Initialize a project in the current directory, using this template.
-azd init --template Azure-Samples/azureai-basic-python
-
-# Provision and deploy to Azure
-azd up
-
-# Provision and deploy to Azure
-azd deploy
-```
-
-### Creating a local Python environment
-
-Create a python environment using your favorite package manager or python installation. We recommend to use venv to isolate python packages used between applications. 
-
-```
-cd src
-```
-
-To create a virtual evironment using venv:
-
-On Windows:
-```
-py -3 -m venv .venv
-.venv\scripts\activate
-```
-
-On Linux:
-```
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-Install python packages:
-```
-pip install -r requirements.txt
-```
-
-### Local development
-
-1. Run the local server:
-
-    ```shell
-    cd src
-    python -m uvicorn api.main:app
-    ```
-
-2. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
-
-3. Enter your prompt in the box.
-### Provisioned Azure Resources
+## Features
 
 This template creates everything you need to get started with Azure AI Studio:
 
-- [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
-- [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
-- [OpenAI Service](https://learn.microsoft.com/azure/ai-services/openai/)
-- [Online Endpoint](https://learn.microsoft.com/azure/machine-learning/concept-endpoints-online?view=azureml-api-2)
-- [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, enabled by default)*
-
-The provisioning will also deploy any models specified within the `./infra/ai.yaml`.
-
-For a list of supported models see [Azure OpenAI Service Models documentation](https://learn.microsoft.com/azure/ai-services/openai/concepts/models)
+* [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
+* [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
+* [OpenAI Service](https://learn.microsoft.com/azure/ai-services/openai/)
+* [Online Endpoint](https://learn.microsoft.com/azure/machine-learning/concept-endpoints-online?view=azureml-api-2)
+* [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, enabled by default)*
+* [Azure OpenAI models](https://learn.microsoft.com/azure/ai-services/openai/concepts/models), based on the list in `./infra/ai.yaml`.
 
 The template also includes dependent resources required by all AI Hub resources:
 
-- [Storage Account](https://learn.microsoft.com/azure/storage/blobs/)
-- [Key Vault](https://learn.microsoft.com/azure/key-vault/general/)
-- [Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) *(Optional, enabled by default)*
-- [Container Registry](https://learn.microsoft.com/azure/container-registry/) *(Optional, enabled by default)*
+* [Storage Account](https://learn.microsoft.com/azure/storage/blobs/)
+* [Key Vault](https://learn.microsoft.com/azure/key-vault/general/)
+* [Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) *(Optional, enabled by default)*
+* [Container Registry](https://learn.microsoft.com/azure/container-registry/) *(Optional, enabled by default)*
 
-### Optional Configuration
+## Architecture diagram
 
-- To disable AI Search, run `azd config set USE_SEARCH_SERVICE false`
-- To disable Application Insights, run `azd config set USE_APPLICATION_INSIGHTS false`
-- To disable Container Registry, run `azd config set USE_CONTAINER_REGISTRY false`
+## Getting started
 
-By default this template will use a default naming convention to prevent naming collisions within Azure.
-To override default naming conventions the following can be set.
+You have a few options for getting started with this template.
+The quickest way to get started is GitHub Codespaces, since it will setup all the tools for you, but you can also [set it up locally](#local-environment).
 
-- `AZUREAI_HUB_NAME` - The name of the AI Studio Hub resource
-- `AZUREAI_PROJECT_NAME` - The name of the AI Studio Project
-- `AZUREAI_ENDPOINT_NAME` - The name of the AI Studio online endpoint used for deployments
-- `AZURE_AISERVICE_NAME` - The name of the Azure OpenAI service
-- `AZURE_SEARCH_SERVICE_NAME` - The name of the Azure Search service
-- `AZURE_STORAGE_ACCOUNT_NAME` - The name of the Storage Account
-- `AZURE_KEYVAULT_NAME` - The name of the Key Vault
-- `AZURE_CONTAINER_REGISTRY_NAME` - The name of the container registry
-- `AZURE_APPLICATION_INSIGHTS_NAME` - The name of the Application Insights instance
-- `AZURE_LOG_ANALYTICS_WORKSPACE_NAME` - The name of the Log Analytics workspace used by Application Insights
+### GitHub Codespaces
 
-Run `azd config set <key> <value>` after initializing the template to override the resource names
+You can run this template virtually by using GitHub Codespaces. The button will open a web-based VS Code instance in your browser:
 
-### Next Steps
+1. Open the template (this may take several minutes):
 
-Bring your code to the sample, configure the `azure.yaml` file and deploy to Azure using `azd deploy`!
+    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
 
-## Try it out right away in GitHub Codespaces
+2. Open a terminal window
+3. Continue with the [deploying steps](#deploying)
 
-You can use GitHub codespaces to open this repository in a pre-built VS Code development environment so that you can get started right away. 
+### VS Code Dev Containers
 
-Click the following to open this repository in GitHub codespaces:
+A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python?quickstart=1)
+1. Start Docker Desktop (install it if not already installed)
+2. Open the project:
 
-## Reporting Issues and Feedback
+    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
-If you have any feature requests, issues, or areas for improvement, please [file an issue](https://aka.ms/azure-dev/issues). To keep up-to-date, ask questions, or share suggestions, join our [GitHub Discussions](https://aka.ms/azure-dev/discussions). You may also contact us via AzDevTeam@microsoft.com.
+3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
+4. Continue with the [deploying steps](#deploying)
+
+### Local environment
+
+If you're not using one of the above options for opening the project, then you'll need to:
+
+1. Make sure the following tools are installed:
+
+    * [Azure Developer CLI (azd)](https://aka.ms/install-azd)
+    * [Python 3.9+](https://www.python.org/downloads/)
+    * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+    * [Git](https://git-scm.com/downloads)
+
+2. Download the project code:
+
+    ```shell
+    azd init -t azureai-basic-python
+    ```
+
+3. Open the project folder in your terminal or editor.
+
+4. Continue with the [deploying steps](#deploying).
+
+## Deploying
+
+Once you've opened the project in [Codespaces](#github-codespaces), in [Dev Containers](#vs-code-dev-containers), or [locally](#local-environment), you can deploy it to Azure.
+
+### Azure account setup
+
+1. Sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
+2. Check that you have the necessary permissions:
+    * Your Azure account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
+    * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
+
+### Deploying with azd
+
+1. Login to Azure:
+
+    ```shell
+    azd auth login
+    ```
+
+2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources) or [customize resource names](docs/deploy_customization.md#customizing-resource-names), follow those steps now.
+
+3. Provision and deploy all the resources:
+
+    ```shell
+    azd up
+    ```
+
+    It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a [location where the OpenAI models are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus"). Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
+
+4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
+
+5. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`.
+
+## Development server
+
+Make sure you first [deployed the app](#deploying) to Azure before running the development server.
+
+1. Create a [Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate it.
+2. Navigate to the `src` directory:
+
+    ```shell
+    cd src
+    ```
+
+3. Install required Python packages:
+
+    ```shell
+    python -m pip install -r requirements.txt
+    ```
+
+4. Run the local server:
+
+    ```shell
+    python -m uvicorn "api.main:create_app" --reload --factory
+    ```
+
+5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
+
+6. Enter your message in the box.
+
+## Guidance
+
+### Costs
+
+Pricing varies per region and usage, so it isn't possible to predict exact costs for your usage.
+The majority of the Azure resources used in this infrastructure are on usage-based pricing tiers.
+However, Azure Container Registry has a fixed cost per registry per day.
+
+You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pricing/calculator) for the resources:
+
+* Azure AI Studio: Free tier. [Pricing](https://azure.microsoft.com/pricing/details/ai-studio/)
+* Azure AI Search: Standard tier, S1. Pricing is based on the number of documents and operations. [Pricing](https://azure.microsoft.com/pricing/details/search/)
+* Azure Storage Account: Standard tier, LRS. Pricing is based on storage and operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
+* Azure Key Vault: Standard tier. Pricing is based on the number of operations. [Pricing](https://azure.microsoft.com/pricing/details/key-vault/)
+* Azure OpenAI Service: S0 tier, gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+* Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
+* Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
+* Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
+
+⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
+either by deleting the resource group in the Portal or running `azd down`.
+
+### Security guidelines
+
+This template uses Azure AI Studio connections to communicate between resources, which stores keys in Azure Key Vault.
+This template also uses [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for local development and deployment.
+
+To ensure continued best practices in your own repository, we recommend that anyone creating solutions based on our templates ensure that the [Github secret scanning](https://docs.github.com/code-security/secret-scanning/about-secret-scanning) setting is enabled.
+
+You may want to consider additional security measures, such as:
+
+* Enabling Microsoft Defender for Cloud to [secure your Azure resources](https://learn.microsoft.com/azure/security-center/defender-for-cloud).
+* Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
+
+### Resources
+
+Links to documentation for the resources used in this template.

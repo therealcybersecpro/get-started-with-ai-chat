@@ -6,7 +6,38 @@ targetScope = 'subscription'
 param environmentName string
 
 @minLength(1)
-@description('Primary location for all resources')
+@description('Location for all resources')
+// Look for desired models on the availability table:
+// https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability
+@allowed([
+  'australiaeast'
+  'brazilsouth'
+  'canadaeast'
+  'eastus'
+  'eastus2'
+  'francecentral'
+  'germanywestcentral'
+  'japaneast'
+  'koreacentral'
+  'northcentralus'
+  'norwayeast'
+  'polandcentral'
+  'spaincentral'
+  'southafricanorth'
+  'southcentralus'
+  'southindia'
+  'swedencentral'
+  'switzerlandnorth'
+  'uksouth'
+  'westeurope'
+  'westus'
+  'westus3'
+])
+@metadata({
+  azd: {
+    type: 'location'
+  }
+})
 param location string
 
 @description('The Azure resource group where new resources will be deployed')
@@ -72,7 +103,9 @@ module ai 'core/host/ai-environment.bicep' = {
       : '${abbrs.storageStorageAccounts}${resourceToken}'
     aiServicesName: !empty(aiServicesName) ? aiServicesName : 'aoai-${resourceToken}'
     aiServicesConnectionName: !empty(aiServicesConnectionName) ? aiServicesConnectionName : 'aoai-${resourceToken}'
-    aiServicesContentSafetyConnectionName: !empty(aiServicesContentSafetyConnectionName) ? aiServicesContentSafetyConnectionName : 'aoai-content-safety-connection'
+    aiServicesContentSafetyConnectionName: !empty(aiServicesContentSafetyConnectionName)
+      ? aiServicesContentSafetyConnectionName
+      : 'aoai-content-safety-connection'
     aiServiceModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
     logAnalyticsName: !useApplicationInsights
       ? ''
@@ -85,8 +118,12 @@ module ai 'core/host/ai-environment.bicep' = {
     containerRegistryName: !useContainerRegistry
       ? ''
       : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
-    searchServiceName: !useSearch ? '' : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
-    searchConnectionName: !useSearch ? '' : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
+    searchServiceName: !useSearch
+      ? ''
+      : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
+    searchConnectionName: !useSearch
+      ? ''
+      : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
   }
 }
 
