@@ -70,6 +70,10 @@ param logAnalyticsWorkspaceName string = ''
 param principalId string = ''
 
 // Chat completion model
+@description('Format of the chat model to deploy')
+@allowed(['Microsoft', 'OpenAI'])
+param chatModelFormat string
+
 @description('Name of the chat model to deploy')
 param chatModelName string
 @description('Name of the model deployment')
@@ -78,7 +82,7 @@ param chatDeploymentName string
 @description('Version of the chat model to deploy')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability
-param chatDeploymentVersion string
+param chatModelVersion string
 
 @description('Sku of the chat deployment')
 param chatDeploymentSku string
@@ -89,6 +93,10 @@ param chatDeploymentSku string
 param chatDeploymentCapacity int
 
 // Embedding model
+@description('Format of the embedding model to deploy')
+@allowed(['Microsoft', 'OpenAI'])
+param embedModelFormat string
+
 @description('Name of the embedding model to deploy')
 param embedModelName string
 @description('Name of the embedding model deployment')
@@ -98,14 +106,14 @@ param embedDeploymentName string
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#embeddings-models
 @secure()
-param embedDeploymentVersion string
+param embedModelVersion string
 
 @description('Sku of the embeddings model deployment')
 param embedDeploymentSku string
 
 @description('Capacity of the embedding deployment')
 // You can increase this, but capacity is limited per model/region, so you will get errors if you go over
-// https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+// https://learn.microsoft.com/azure/ai-services/openai/quotas-limits
 param embedDeploymentCapacity int
 
 param useContainerRegistry bool = true
@@ -121,9 +129,9 @@ var aiDeployments = [
   {
     name: chatDeploymentName
     model: {
-      format: 'OpenAI'
+      format: chatModelFormat
       name: chatModelName
-      version: chatDeploymentVersion
+      version: chatModelVersion
     }
     sku: {
       name: chatDeploymentSku
@@ -133,9 +141,9 @@ var aiDeployments = [
   {
     name: embedDeploymentName
     model: {
-      format: 'OpenAI'
+      format: embedModelFormat
       name: embedModelName
-      version: embedDeploymentVersion
+      version: embedModelVersion
     }
     sku: {
       name: embedDeploymentSku
@@ -276,6 +284,7 @@ module api 'api.bicep' = {
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     containerRegistryName: containerApps.outputs.registryName
     projectConnectionString: projectConnectionString
+    chatDeploymentName: chatDeploymentName
     exists: apiAppExists
   }
 }

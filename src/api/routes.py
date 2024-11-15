@@ -3,8 +3,8 @@ import json
 import fastapi
 import pydantic
 from fastapi import Request
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 from .shared import globals
 
@@ -35,12 +35,9 @@ async def chat_stream_handler(
         raise Exception("Chat client not initialized")
 
     async def response_stream():
-        messages = [
-            {"role": message.role, "content": message.content}
-            for message in chat_request.messages
-        ]
+        messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
         SYSTEM_PROMPT = "You are a helpful assistant."
-        model_deployment_name = "gpt-4o-mini"
+        model_deployment_name = globals["chat_model"]
         system_message = [{"role": "system", "content": SYSTEM_PROMPT}]
         chat_coroutine = await chat_client.complete(
             model=model_deployment_name, messages=system_message + messages, stream=True
