@@ -113,7 +113,7 @@ param embedDeploymentSku string
 
 @description('Capacity of the embedding deployment')
 // You can increase this, but capacity is limited per model/region, so you will get errors if you go over
-// https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+// https://learn.microsoft.com/azure/ai-services/openai/quotas-limits
 param embedDeploymentCapacity int
 
 param useContainerRegistry bool = true

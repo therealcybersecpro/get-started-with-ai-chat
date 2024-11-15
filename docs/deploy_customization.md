@@ -5,7 +5,7 @@ This document describes how to customize the deployment of the Azure AI Studio S
 
 * [Disabling resources](#disabling-resources)
 * [Customizing resource names](#customizing-resource-names)
-* [Customizing OpenAI deployments](#customizing-openai-deployments)
+* [Customizing model deployments](#customizing-model-deployments)
 
 ## Disabling resources
 
@@ -23,7 +23,7 @@ To override default naming conventions the following can be set.
 * `AZURE_AIHUB_NAME` - The name of the AI Studio Hub resource
 * `AZURE_AIPROJECT_NAME` - The name of the AI Studio Project
 * `AZURE_AIENDPOINT_NAME` - The name of the AI Studio online endpoint used for deployments
-* `AZURE_AISERVICES_NAME` - The name of the Azure OpenAI service
+* `AZURE_AISERVICES_NAME` - The name of the Azure AI service
 * `AZURE_SEARCH_SERVICE_NAME` - The name of the Azure Search service
 * `AZURE_STORAGE_ACCOUNT_NAME` - The name of the Storage Account
 * `AZURE_KEYVAULT_NAME` - The name of the Key Vault
@@ -33,9 +33,9 @@ To override default naming conventions the following can be set.
 
 To override any of those resource names, run `azd env set <key> <value>` before running `azd up`.
 
-## Customizing OpenAI deployments
+## Customizing model deployments
 
-To customize the OpenAI deployment, you can set the following environment variables:
+To customize the model deployments, you can set the following environment variables:
 
 ### Using a different chat model
 
@@ -45,7 +45,7 @@ Change the chat deployment name:
 azd env set AZURE_AI_CHAT_DEPLOYMENT_NAME Phi-3.5-MoE-instruct
 ```
 
-Change the chat model format: (OpenAI, Microsoft)
+Change the chat model format (either OpenAI or Microsoft):
 
 ```shell
 azd env set AZURE_AI_CHAT_MODEL_FORMAT Microsoft
