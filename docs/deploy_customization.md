@@ -90,3 +90,15 @@ Change the SKU of the embeddings deployment:
 ```shell
 azd env set AZURE_AI_EMBED_DEPLOYMENT_SKU Standard
 ```
+
+## Bringing an existing AI project resource
+
+If you have an existing AI project resource, you can bring it into the Azure AI Studio Starter Template by setting the following environment variable:
+
+```shell
+azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
+```
+
+You can find the connection string on the overview page of your Azure AI project.
+
+If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI studio or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.

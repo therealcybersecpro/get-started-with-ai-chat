@@ -40,6 +40,8 @@ param environmentName string
 })
 param location string
 
+@description('Use this parameter to use an existing AI project connection string')
+param aiExistingProjectConnectionString string = ''
 @description('The Azure resource group where new resources will be deployed')
 param resourceGroupName string = ''
 @description('The Azure AI Studio Hub resource name. If ommited will be generated')
@@ -162,7 +164,17 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
-module ai 'core/host/ai-environment.bicep' = {
+var logAnalyticsWorkspaceResolvedName = !useApplicationInsights
+  ? ''
+  : !empty(logAnalyticsWorkspaceName)
+      ? logAnalyticsWorkspaceName
+      : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
+
+var containerRegistryResolvedName = !useContainerRegistry
+  ? ''
+  : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
+
+module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnectionString)) {
   name: 'ai'
   scope: rg
   params: {
@@ -180,17 +192,11 @@ module ai 'core/host/ai-environment.bicep' = {
       ? aiServicesContentSafetyConnectionName
       : 'aoai-content-safety-connection'
     aiServiceModelDeployments: aiDeployments
-    logAnalyticsName: !useApplicationInsights
-      ? ''
-      : !empty(logAnalyticsWorkspaceName)
-          ? logAnalyticsWorkspaceName
-          : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
+    logAnalyticsName: logAnalyticsWorkspaceResolvedName
     applicationInsightsName: !useApplicationInsights
       ? ''
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    containerRegistryName: !useContainerRegistry
-      ? ''
-      : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
+    containerRegistryName: containerRegistryResolvedName
     searchServiceName: !useSearch
       ? ''
       : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
@@ -200,11 +206,24 @@ module ai 'core/host/ai-environment.bicep' = {
   }
 }
 
-var hostName = split(ai.outputs.discoveryUrl, '/')[2]
-var projectConnectionString = '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
+// If bringing an existing AI project, set up the log analytics workspace here
+module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(aiExistingProjectConnectionString)) {
+  name: 'logAnalytics'
+  scope: rg
+  params: {
+    location: location
+    tags: tags
+    name: logAnalyticsWorkspaceResolvedName
+  }
+}
+
+var hostName = empty(aiExistingProjectConnectionString) ? split(ai.outputs.discoveryUrl, '/')[2] : ''
+var projectConnectionString = empty(hostName)
+  ? aiExistingProjectConnectionString
+  : '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
 
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
-  name: 'user-acr-role-push'
+  name: 'user-role-acr-push'
   scope: rg
   params: {
     principalId: principalId
@@ -213,7 +232,7 @@ module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
 }
 
 module userAcrRolePull 'core/security/role.bicep' = if (!empty(principalId)) {
-  name: 'user-acr-role-pull'
+  name: 'user-role-acr-pull'
   scope: rg
   params: {
     principalId: principalId
@@ -239,8 +258,8 @@ module userRoleSecretsReader 'core/security/role.bicep' = if (!empty(principalId
   }
 }
 
-module userRoleAzureAIDeveloperUser 'core/security/role.bicep' = if (!empty(principalId)) {
-  name: 'user-role-azureai-developer-user'
+module userRoleAzureAIDeveloper 'core/security/role.bicep' = if (!empty(principalId)) {
+  name: 'user-role-azureai-developer'
   scope: rg
   params: {
     principalId: principalId
@@ -248,9 +267,22 @@ module userRoleAzureAIDeveloperUser 'core/security/role.bicep' = if (!empty(prin
   }
 }
 
-module userRoleAzureAIDeveloperBackend 'core/security/role.bicep' = if (!empty(principalId)) {
-  name: 'user-role-azureai-developer-backend'
+module backendRoleAzureAIDeveloperRG 'core/security/role.bicep' = {
+  name: 'backend-role-azureai-developer-rg'
   scope: rg
+  params: {
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
+  }
+}
+
+resource existingProjectRG 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(aiExistingProjectConnectionString)) {
+  name: split(aiExistingProjectConnectionString, ';')[2]
+}
+
+module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bicep' = if (!empty(aiExistingProjectConnectionString)) {
+  name: 'backend-role-azureai-developer-existing-project-rg'
+  scope: existingProjectRG
   params: {
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
@@ -267,8 +299,12 @@ module containerApps 'core/host/container-apps.bicep' = {
     location: location
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
-    containerRegistryName: ai.outputs.containerRegistryName
-    logAnalyticsWorkspaceName: ai.outputs.logAnalyticsWorkspaceName
+    containerRegistryName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.containerRegistryName
+      : containerRegistryResolvedName
+    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.logAnalyticsWorkspaceName
+      : logAnalytics.outputs.name
   }
 }
 
@@ -289,31 +325,14 @@ module api 'api.bicep' = {
   }
 }
 
-// output the names of the resources
-output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = rg.name
 
-output AZURE_AIHUB_NAME string = ai.outputs.hubName
-output AZURE_AIPROJECT_NAME string = ai.outputs.projectName
-
-output AZURE_AISERVICES_NAME string = ai.outputs.aiServicesName
-output AZURE_AISERVICES_ENDPOINT string = ai.outputs.aiServiceEndpoint
-
-output AZURE_SEARCH_NAME string = ai.outputs.searchServiceName
-output AZURE_SEARCH_ENDPOINT string = ai.outputs.searchServiceEndpoint
-
-output AZURE_KEYVAULT_NAME string = ai.outputs.keyVaultName
-output AZURE_KEYVAULT_ENDPOINT string = ai.outputs.keyVaultEndpoint
-
-output AZURE_STORAGE_ACCOUNT_NAME string = ai.outputs.storageAccountName
-output AZURE_STORAGE_ACCOUNT_ENDPOINT string = ai.outputs.storageAccountName
-
-output AZURE_APPLICATION_INSIGHTS_NAME string = ai.outputs.applicationInsightsName
-output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = ai.outputs.logAnalyticsWorkspaceName
-
+// Outputs required for local development server
+output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
+output AZURE_AI_CHAT_DEPLOYMENT_NAME string = chatDeploymentName
 
-//Container and api
+// Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
 output AZURE_CONTAINER_REGISTRY_NAME string = containerApps.outputs.registryName
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
