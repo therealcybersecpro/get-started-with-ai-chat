@@ -8,6 +8,7 @@ param containerRegistryName string
 param serviceName string = 'api'
 param exists bool
 param projectConnectionString string
+param chatDeploymentName string
 
 resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -22,6 +23,10 @@ var env = [
   {
     name: 'AZURE_AIPROJECT_CONNECTION_STRING'
     value: projectConnectionString
+  }
+  {
+    name: 'AZURE_AI_CHAT_DEPLOYMENT_NAME'
+    value: chatDeploymentName
   }
   {
     name: 'RUNNING_IN_PRODUCTION'

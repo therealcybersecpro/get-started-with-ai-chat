@@ -7,11 +7,12 @@ languages:
 products:
 - azure
 - azure-openai
+- azure-ai
 - azure-cognitive-search
 - azure-container-apps
 urlFragment: azureai-basic-python
 name: Azure AI basic template (Python)
-description: Creates an Azure AI Studio hub, project and required dependent resources including Azure OpenAI Service, Azure AI Search and more. Deploys a simple chat application.
+description: Creates an Azure AI Studio hub, project and required dependent resources including Azure AI Services, Azure AI Search and more. Deploys a simple chat application.
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
@@ -20,7 +21,7 @@ description: Creates an Azure AI Studio hub, project and required dependent reso
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
-This project creates an Azure AI Studio hub, project and connected resources including Azure OpenAI Service, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
+This project creates an Azure AI Studio hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
 
 * [Features](#features)
 * [Architecture diagram](#architecture-diagram)
@@ -39,10 +40,8 @@ This template creates everything you need to get started with Azure AI Studio:
 
 * [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
 * [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
-* [OpenAI Service](https://learn.microsoft.com/azure/ai-services/openai/)
-* [Online Endpoint](https://learn.microsoft.com/azure/machine-learning/concept-endpoints-online?view=azureml-api-2)
+* [Azure AI Service](https://learn.microsoft.com/azure/ai-services): Default models deployed are gpt-4o-mini and text-embedding-ada-002, but any Azure AI models can be specified per the [documentation](docs/deploy_customization.md#customizing-model-deployments).
 * [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, enabled by default)*
-* [Azure OpenAI models](https://learn.microsoft.com/azure/ai-services/openai/concepts/models), based on the list in `./infra/ai.yaml`.
 
 The template also includes dependent resources required by all AI Hub resources:
 
@@ -122,7 +121,7 @@ Once you've opened the project in [Codespaces](#github-codespaces), in [Dev Cont
     ```
 
 2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
-or [customize the OpenAI models](docs/deploy_customization.md#customizing-openai-models), you can follow those steps now.
+or [customize the models](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now.
 
 3. Provision and deploy all the resources:
 
@@ -130,7 +129,7 @@ or [customize the OpenAI models](docs/deploy_customization.md#customizing-openai
     azd up
     ```
 
-    It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a [location where the OpenAI models are available](https://azure.microsoft.com/explore/global-infrastructure/products-by-region/?products=cognitive-services&regions=all) (like "eastus"). Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
+    It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
 4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
 
@@ -171,7 +170,7 @@ Make sure you first [deployed the app](#deploying) to Azure before running the d
 4. Run the local server:
 
     ```shell
-    python -m uvicorn "api.main:create_app" --reload --factory
+    python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
 5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
@@ -192,7 +191,7 @@ You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pri
 * Azure AI Search: Standard tier, S1. Pricing is based on the number of documents and operations. [Pricing](https://azure.microsoft.com/pricing/details/search/)
 * Azure Storage Account: Standard tier, LRS. Pricing is based on storage and operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
 * Azure Key Vault: Standard tier. Pricing is based on the number of operations. [Pricing](https://azure.microsoft.com/pricing/details/key-vault/)
-* Azure OpenAI Service: S0 tier, gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+* Azure AI Services: S0 tier, defaults to gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/)
 * Azure Container App: Consumption tier with 0.5 CPU, 1GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 * Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 * Log analytics: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
