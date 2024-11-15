@@ -1,5 +1,5 @@
 name: Template Validation
-on: 
+on:
   workflow_dispatch:
 
 permissions:

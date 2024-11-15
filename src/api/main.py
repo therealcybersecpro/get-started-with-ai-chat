@@ -1,20 +1,19 @@
-import os
-import logging
 import contextlib
+import logging
+import os
 from typing import Union
 
-from fastapi.staticfiles import StaticFiles
-from azure.ai.projects.aio import AIProjectClient
-from azure.identity import ManagedIdentityCredential, AzureDeveloperCliCredential
-
 import fastapi
-
+from azure.ai.projects.aio import AIProjectClient
+from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredential
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 
 from .shared import globals
 
 logger = logging.getLogger("azureaiapp")
 logger.setLevel(logging.INFO)
+
 
 @contextlib.asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
