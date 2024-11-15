@@ -121,7 +121,8 @@ Once you've opened the project in [Codespaces](#github-codespaces), in [Dev Cont
     azd auth login
     ```
 
-2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources) or [customize resource names](docs/deploy_customization.md#customizing-resource-names), follow those steps now.
+2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
+or [customize the OpenAI models](docs/deploy_customization.md#customizing-openai-models), you can follow those steps now.
 
 3. Provision and deploy all the resources:
 
