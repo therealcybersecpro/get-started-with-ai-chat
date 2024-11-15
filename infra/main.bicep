@@ -69,6 +69,45 @@ param logAnalyticsWorkspaceName string = ''
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
+// Chat completion model
+@description('Name of the chat model to deploy')
+param chatModelName string
+@description('Name of the model deployment')
+param chatDeploymentName string
+
+@description('Version of the chat model to deploy')
+// See version availability in this table:
+// https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability
+param chatDeploymentVersion string
+
+@description('Sku of the chat deployment')
+param chatDeploymentSku string
+
+@description('Capacity of the chat deployment')
+// You can increase this, but capacity is limited per model/region, so you will get errors if you go over
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+param chatDeploymentCapacity int
+
+// Embedding model
+@description('Name of the embedding model to deploy')
+param embedModelName string
+@description('Name of the embedding model deployment')
+param embedDeploymentName string
+
+@description('Version of the embedding model to deploy')
+// See version availability in this table:
+// https://learn.microsoft.com/azure/ai-services/openai/concepts/models#embeddings-models
+@secure()
+param embedDeploymentVersion string
+
+@description('Sku of the embeddings model deployment')
+param embedDeploymentSku string
+
+@description('Capacity of the embedding deployment')
+// You can increase this, but capacity is limited per model/region, so you will get errors if you go over
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
+param embedDeploymentCapacity int
+
 param useContainerRegistry bool = true
 param useApplicationInsights bool = true
 param useSearch bool = false
@@ -77,7 +116,33 @@ var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var projectName = !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
 var tags = { 'azd-env-name': environmentName }
-var aiConfig = loadYamlContent('./ai.yaml')
+
+var aiDeployments = [
+  {
+    name: chatDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: chatModelName
+      version: chatDeploymentVersion
+    }
+    sku: {
+      name: chatDeploymentSku
+      capacity: chatDeploymentCapacity
+    }
+  }
+  {
+    name: embedDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: embedModelName
+      version: embedDeploymentVersion
+    }
+    sku: {
+      name: embedDeploymentSku
+      capacity: embedDeploymentCapacity
+    }
+  }
+]
 
 //for container and app api
 param apiAppExists bool = false
@@ -106,7 +171,7 @@ module ai 'core/host/ai-environment.bicep' = {
     aiServicesContentSafetyConnectionName: !empty(aiServicesContentSafetyConnectionName)
       ? aiServicesContentSafetyConnectionName
       : 'aoai-content-safety-connection'
-    aiServiceModelDeployments: array(contains(aiConfig, 'deployments') ? aiConfig.deployments : [])
+    aiServiceModelDeployments: aiDeployments
     logAnalyticsName: !useApplicationInsights
       ? ''
       : !empty(logAnalyticsWorkspaceName)
@@ -222,8 +287,8 @@ output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_AIHUB_NAME string = ai.outputs.hubName
 output AZURE_AIPROJECT_NAME string = ai.outputs.projectName
 
-output AZURE_AISERVICE_NAME string = ai.outputs.aiServicesName
-output AZURE_AISERVICE_ENDPOINT string = ai.outputs.aiServiceEndpoint
+output AZURE_AISERVICES_NAME string = ai.outputs.aiServicesName
+output AZURE_AISERVICES_ENDPOINT string = ai.outputs.aiServiceEndpoint
 
 output AZURE_SEARCH_NAME string = ai.outputs.searchServiceName
 output AZURE_SEARCH_ENDPOINT string = ai.outputs.searchServiceEndpoint
