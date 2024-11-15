@@ -108,7 +108,6 @@ param embedDeploymentSku string
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
 param embedDeploymentCapacity int
 
-
 param useContainerRegistry bool = true
 param useApplicationInsights bool = true
 param useSearch bool = false
@@ -120,30 +119,30 @@ var tags = { 'azd-env-name': environmentName }
 
 var aiDeployments = [
   {
-  name: chatDeploymentName
-  model: {
-    format: 'OpenAI'
-    name: chatModelName
-    version: chatDeploymentVersion
+    name: chatDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: chatModelName
+      version: chatDeploymentVersion
+    }
+    sku: {
+      name: chatDeploymentSku
+      capacity: chatDeploymentCapacity
+    }
   }
-  sku: {
-    name: chatDeploymentSku
-    capacity: chatDeploymentCapacity
+  {
+    name: embedDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: embedModelName
+      version: embedDeploymentVersion
+    }
+    sku: {
+      name: embedDeploymentSku
+      capacity: embedDeploymentCapacity
+    }
   }
-}
-{
-  name: embedDeploymentName
-  model: {
-    format: 'OpenAI'
-    name: embedModelName
-    version: embedDeploymentVersion
-  }
-  sku: {
-    name: embedDeploymentSku
-    capacity: embedDeploymentCapacity
-  }
-}]
-
+]
 
 //for container and app api
 param apiAppExists bool = false
