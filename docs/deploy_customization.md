@@ -37,24 +37,30 @@ To override any of those resource names, run `azd env set <key> <value>` before 
 
 To customize the OpenAI deployment, you can set the following environment variables:
 
-### Using a diferent chat model
+### Using a different chat model
+
+Change the chat deployment name:
+
+```shell
+azd env set AZURE_AI_CHAT_DEPLOYMENT_NAME Phi-3.5-MoE-instruct
+```
+
+Change the chat model format: (OpenAI, Microsoft)
+
+```shell
+azd env set AZURE_AI_CHAT_MODEL_FORMAT Microsoft
+```
 
 Change the chat model name:
 
 ```shell
-azd env set AZURE_OPENAI_CHAT_MODEL gpt-4o
+azd env set AZURE_AI_CHAT_MODEL_NAME Phi-3.5-MoE-instruct
 ```
 
 Set the version of the chat model:
 
 ```shell
-azd env set AZURE_OPENAI_CHAT_DEPLOYMENT_VERSION 2024-08-06
-```
-
-Change the chat deployment name:
-
-```shell
-azd env set AZURE_OPENAI_DEPLOYMENT_NAME gpt-4o
+azd env set AZURE_AI_CHAT_MODEL_VERSION 2
 ```
 
 ### Setting capacity and deployment SKU
@@ -64,23 +70,23 @@ For quota regions, you may find yourself needing to modify the default capacity 
 Change the capacity of the chat deployment:
 
 ```shell
-azd env set AZURE_OPENAI_CHAT_DEPLOYMENT_CAPACITY 10
+azd env set AZURE_AI_CHAT_DEPLOYMENT_CAPACITY 10
 ```
 
 Change the SKU of the chat deployment:
 
 ```shell
-azd env set AZURE_OPENAI_CHAT_DEPLOYMENT_SKU Standard
+azd env set AZURE_AI_CHAT_DEPLOYMENT_SKU Standard
 ```
 
 Change the capacity of the embeddings deployment:
 
 ```shell
-azd env set AZURE_OPENAI_EMBED_DEPLOYMENT_CAPACITY 10
+azd env set AZURE_AI_EMBED_DEPLOYMENT_CAPACITY 10
 ```
 
 Change the SKU of the embeddings deployment:
 
 ```shell
-azd env set AZURE_OPENAI_EMBED_DEPLOYMENT_SKU Standard
+azd env set AZURE_AI_EMBED_DEPLOYMENT_SKU Standard
 ```

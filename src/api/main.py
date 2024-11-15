@@ -40,6 +40,7 @@ async def lifespan(app: fastapi.FastAPI):
     chat = await project.inference.get_chat_completions_client()
     globals["project"] = project
     globals["chat"] = chat
+    globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
 
     yield
 

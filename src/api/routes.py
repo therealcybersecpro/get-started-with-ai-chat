@@ -40,7 +40,7 @@ async def chat_stream_handler(
             for message in chat_request.messages
         ]
         SYSTEM_PROMPT = "You are a helpful assistant."
-        model_deployment_name = "gpt-4o-mini"
+        model_deployment_name = globals["chat_model"]
         system_message = [{"role": "system", "content": SYSTEM_PROMPT}]
         chat_coroutine = await chat_client.complete(
             model=model_deployment_name, messages=system_message + messages, stream=True

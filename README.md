@@ -171,7 +171,7 @@ Make sure you first [deployed the app](#deploying) to Azure before running the d
 4. Run the local server:
 
     ```shell
-    python -m uvicorn "api.main:create_app" --reload --factory
+    python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
 5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
