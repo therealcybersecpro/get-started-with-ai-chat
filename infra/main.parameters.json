@@ -82,6 +82,9 @@
     },
     "apiAppExists": {
       "value": "${SERVICE_API_RESOURCE_EXISTS=false}"
+    },
+    "aiExistingProjectConnectionString": {
+      "value": "${AZURE_EXISTING_AIPROJECT_CONNECTION_STRING}"
     }
   }
 }
