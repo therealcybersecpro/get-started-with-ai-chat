@@ -174,7 +174,7 @@ var containerRegistryResolvedName = !useContainerRegistry
   ? ''
   : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
 
-module ai 'core/host/ai-environment.bicep' = if(empty(aiExistingProjectConnectionString)) {
+module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnectionString)) {
   name: 'ai'
   scope: rg
   params: {
@@ -217,9 +217,10 @@ module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(aiExistingPro
   }
 }
 
-
 var hostName = empty(aiExistingProjectConnectionString) ? split(ai.outputs.discoveryUrl, '/')[2] : ''
-var projectConnectionString = empty(hostName) ? aiExistingProjectConnectionString : '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
+var projectConnectionString = empty(hostName)
+  ? aiExistingProjectConnectionString
+  : '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
 
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
   name: 'user-role-acr-push'
@@ -288,7 +289,6 @@ module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bice
   }
 }
 
-
 //Container apps host and api
 // Container apps host (including container registry)
 module containerApps 'core/host/container-apps.bicep' = {
@@ -299,8 +299,12 @@ module containerApps 'core/host/container-apps.bicep' = {
     location: location
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
-    containerRegistryName: empty(aiExistingProjectConnectionString) ? ai.outputs.containerRegistryName : containerRegistryResolvedName
-    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString) ? ai.outputs.logAnalyticsWorkspaceName : logAnalytics.outputs.name
+    containerRegistryName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.containerRegistryName
+      : containerRegistryResolvedName
+    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.logAnalyticsWorkspaceName
+      : logAnalytics.outputs.name
   }
 }
 
