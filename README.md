@@ -52,6 +52,8 @@ The template also includes dependent resources required by all AI Hub resources:
 
 ## Architecture diagram
 
+![Architecture diagram showing that user input used in conjunction with user identity to call app code running in Azure Container apps that processes the user input and generates a response to the user. The app code leverages Azure AI projects, Azure AI model inference, prompty, and Azure AI Search.](docs/architecture.png)
+
 ## Getting started
 
 You have a few options for getting started with this template.
@@ -134,6 +136,18 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
 
 5. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`.
+
+### Bringing an existing AI project resource
+
+If you have an existing AI project resource, you can bring it into the Azure AI Studio Starter Template by setting the following environment variable:
+
+```shell
+azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
+```
+
+You can find the connection string on the overview page of your Azure AI project.
+
+If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI studio or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
 
 ## Development server
 
