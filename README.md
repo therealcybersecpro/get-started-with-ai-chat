@@ -41,7 +41,7 @@ This template creates everything you need to get started with Azure AI Studio:
 * [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
 * [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
 * [Azure AI Service](https://learn.microsoft.com/azure/ai-services): Default models deployed are gpt-4o-mini and text-embedding-ada-002, but any Azure AI models can be specified per the [documentation](docs/deploy_customization.md#customizing-model-deployments).
-* [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, enabled by default)*
+* [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, disabled by default)*
 
 The template also includes dependent resources required by all AI Hub resources:
 

@@ -1,10 +1,12 @@
 import contextlib
 import logging
 import os
+import pathlib
 from typing import Union
 
 import fastapi
 from azure.ai.projects.aio import AIProjectClient
+from azure.ai.inference.prompts import PromptTemplate
 from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredential
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
@@ -37,10 +39,12 @@ async def lifespan(app: fastapi.FastAPI):
     )
 
     chat = await project.inference.get_chat_completions_client()
+    prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
+
     globals["project"] = project
     globals["chat"] = chat
+    globals["prompt"] = prompt
     globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
-
     yield
 
     await project.close()

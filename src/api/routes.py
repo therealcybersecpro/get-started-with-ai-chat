@@ -36,11 +36,10 @@ async def chat_stream_handler(
 
     async def response_stream():
         messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
-        SYSTEM_PROMPT = "You are a helpful assistant."
         model_deployment_name = globals["chat_model"]
-        system_message = [{"role": "system", "content": SYSTEM_PROMPT}]
+        prompt_messages = globals["prompt"].create_messages()
         chat_coroutine = await chat_client.complete(
-            model=model_deployment_name, messages=system_message + messages, stream=True
+            model=model_deployment_name, messages=prompt_messages + messages, stream=True
         )
         async for event in chat_coroutine:
             if event.choices:
