@@ -12,16 +12,16 @@ products:
 - azure-container-apps
 urlFragment: azureai-basic-python
 name: Azure AI basic template (Python)
-description: Creates an Azure AI Studio hub, project and required dependent resources including Azure AI Services, Azure AI Search and more. Deploys a simple chat application.
+description: Creates an Azure AI Foundry hub, project and required dependent resources including Azure AI Services, Azure AI Search and more. Deploys a simple chat application.
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
-# Azure AI Studio Starter Template
+# Azure AI Foundry Starter Template
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
-This project creates an Azure AI Studio hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
+This project creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
 
 * [Features](#features)
 * [Architecture diagram](#architecture-diagram)
@@ -36,7 +36,7 @@ This project creates an Azure AI Studio hub, project and connected resources inc
 
 ## Features
 
-This template creates everything you need to get started with Azure AI Studio:
+This template creates everything you need to get started with Azure AI Foundry:
 
 * [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
 * [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
@@ -139,7 +139,7 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 
 ### Bringing an existing AI project resource
 
-If you have an existing AI project resource, you can bring it into the Azure AI Studio Starter Template by setting the following environment variable:
+If you have an existing AI project resource, you can bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
 
 ```shell
 azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
@@ -147,7 +147,7 @@ azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
 
 You can find the connection string on the overview page of your Azure AI project.
 
-If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI studio or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
+If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
 
 ## Development server
 
@@ -201,7 +201,7 @@ However, Azure Container Registry has a fixed cost per registry per day.
 
 You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pricing/calculator) for the resources:
 
-* Azure AI Studio: Free tier. [Pricing](https://azure.microsoft.com/pricing/details/ai-studio/)
+* Azure AI Foundry: Free tier. [Pricing](https://azure.microsoft.com/pricing/details/ai-studio/)
 * Azure AI Search: Standard tier, S1. Pricing is based on the number of documents and operations. [Pricing](https://azure.microsoft.com/pricing/details/search/)
 * Azure Storage Account: Standard tier, LRS. Pricing is based on storage and operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
 * Azure Key Vault: Standard tier. Pricing is based on the number of operations. [Pricing](https://azure.microsoft.com/pricing/details/key-vault/)
@@ -215,7 +215,7 @@ either by deleting the resource group in the Portal or running `azd down`.
 
 ### Security guidelines
 
-This template uses Azure AI Studio connections to communicate between resources, which stores keys in Azure Key Vault.
+This template uses Azure AI Foundry connections to communicate between resources, which stores keys in Azure Key Vault.
 This template also uses [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for local development and deployment.
 
 To ensure continued best practices in your own repository, we recommend that anyone creating solutions based on our templates ensure that the [Github secret scanning](https://docs.github.com/code-security/secret-scanning/about-secret-scanning) setting is enabled.
