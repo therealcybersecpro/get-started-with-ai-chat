@@ -44,9 +44,9 @@ param location string
 param aiExistingProjectConnectionString string = ''
 @description('The Azure resource group where new resources will be deployed')
 param resourceGroupName string = ''
-@description('The Azure AI Studio Hub resource name. If ommited will be generated')
+@description('The Azure AI Foundry Hub resource name. If ommited will be generated')
 param aiHubName string = ''
-@description('The Azure AI Studio project name. If ommited will be generated')
+@description('The Azure AI Foundry project name. If ommited will be generated')
 param aiProjectName string = ''
 @description('The application insights resource name. If ommited will be generated')
 param applicationInsightsName string = ''
