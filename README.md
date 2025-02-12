@@ -22,7 +22,7 @@ description: Creates an Azure AI Foundry hub, project and required dependent res
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
 This project creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
-The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also insturctions for developing in GitHub Codespaces and VS Code Dev Containers.
+The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also instructions for developing in GitHub Codespaces and VS Code Dev Containers.
 
 * [Prerequisites](#prerequisites)
   * [Azure account](#azure-account)
@@ -38,7 +38,7 @@ The main path walks you through deploying the application using local developmen
 * [Alternatives to Local Development](#alternatives-to-local-development)
   * [GitHub Codespaces](#github-codespaces)
   * [VS Code Dev Containers](#vs-code-dev-containers)
-* [Additional Information](#additional-information)
+* [Supporting Documentation](#supporting-documentation)
   * [Costs](#costs)
   * [Security guidelines](#security-guidelines)
   * [Resources](#resources)
@@ -46,7 +46,7 @@ The main path walks you through deploying the application using local developmen
 
 ## Prerequisites
 
-### Azure account
+#### Azure account
 If you do not have an Azure Subscription, you can set one up following these instructions:
 
 1. Sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
@@ -54,7 +54,7 @@ If you do not have an Azure Subscription, you can set one up following these ins
     * Your Azure account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
     * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
 
-### Required tools
+#### Required tools
 Make sure the following tools are installed:
 
 1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) If you have the Azure Developer CLI already installed, you can update to latest version using:
@@ -64,7 +64,7 @@ Make sure the following tools are installed:
 2. [Python 3.9+](https://www.python.org/downloads/)
 3. [Git](https://git-scm.com/downloads)
 
-### Bringing an existing AI project resource
+#### Bringing an existing AI project resource
 
 This step applies if you have an existing AI project resource, and you want to bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
 
@@ -78,7 +78,7 @@ If you do not have a deployment named "gpt-4o-mini" in your existing AI project,
 
 ## Development
 
-### Code
+#### Code
 Download the project code:
 
 ```shell
@@ -86,14 +86,14 @@ azd init -t azureai-basic-python
 ```
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
-### Logging
+#### Logging
 If you want to enable logging to file instead of console, make the following modifications to main.py:
 
 ```code
 TBA
 ```
 
-### Tracing to App Insights
+#### Tracing to App Insights
 To enable tracing to App Insights, modify the value of ENABLE_AZURE_MONITOR_TRACING environment variable to true in Dockerfile found in src directory:
 ```code
 ENV ENABLE_AZURE_MONITOR_TRACING=true
@@ -184,9 +184,9 @@ You can optionally use a development server to test app changes locally. Make su
 
 6. Enter your message in the box.
 
-## Alternatives to Local Development
+## Alternatives to Local Development Environment
 
-### GitHub Codespaces
+#### GitHub Codespaces
 
 You can run this template virtually by using GitHub Codespaces. The button will open a web-based VS Code instance in your browser:
 
@@ -197,7 +197,7 @@ You can run this template virtually by using GitHub Codespaces. The button will 
 2. Open a terminal window
 3. Continue with the [deploying steps](#deployment)
 
-### VS Code Dev Containers
+#### VS Code Dev Containers
 
 A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
 
@@ -210,9 +210,9 @@ A related option is VS Code Dev Containers, which will open the project in your 
 4. Continue with the [deploying steps](#deployment)
 
 
-## Additional Information
+## Supporting Documentation
 
-### Costs
+#### Costs
 
 Pricing varies per region and usage, so it isn't possible to predict exact costs for your usage.
 The majority of the Azure resources used in this infrastructure are on usage-based pricing tiers.
@@ -232,7 +232,7 @@ You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pri
 ⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
 either by deleting the resource group in the Portal or running `azd down`.
 
-### Security guidelines
+#### Security guidelines
 
 This template uses Azure AI Foundry connections to communicate between resources, which stores keys in Azure Key Vault.
 This template also uses [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for local development and deployment.
@@ -244,7 +244,7 @@ You may want to consider additional security measures, such as:
 * Enabling Microsoft Defender for Cloud to [secure your Azure resources](https://learn.microsoft.com/azure/security-center/defender-for-cloud).
 * Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
-### Resources
+#### Resources
 
 This template creates everything you need to get started with Azure AI Foundry:
 
