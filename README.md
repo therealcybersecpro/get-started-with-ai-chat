@@ -18,7 +18,7 @@ description: Creates an Azure AI Foundry hub, project and required dependent res
 
 # Get Started with Chat Using Azure AI Foundry
 
-MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \| [**DEPLOYMENT**](#deployment)  \| [**TRACING AND MONITORING**](#tracing-and-monitoring)  \| [**ALTERNATIVES TO LOCAL ENVIRONMENT**](#alternatives-to-local-environment)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
+MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \| [**DEPLOYMENT**](#deployment)  \| [**TRACING AND MONITORING**](#tracing-and-monitoring)  \| [**DEV OPTIONS**](#dev-options)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
@@ -166,7 +166,9 @@ If you enabled logging to file, you can view the log file by... TBA
 
 You can view the App Insights tracing here: TBA
 
-## Alternatives to Local Development Environment
+## Dev Options
+
+Instead of local development environment, the following alternative development environments can be used.
 
 #### GitHub Codespaces
 
