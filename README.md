@@ -1,29 +1,10 @@
----
-page_type: sample
-languages:
-- azdeveloper
-- bicep
-- python
-products:
-- azure
-- azure-openai
-- azure-ai
-- azure-cognitive-search
-- azure-container-apps
-urlFragment: azureai-basic-python
-name: Azure AI basic template (Python)
-description: Creates an Azure AI Foundry hub, project and required dependent resources including Azure AI Services, Azure AI Search and more. Deploys a simple chat application.
----
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
 # Get Started with Chat Using Azure AI Foundry
 
-MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \| [**DEPLOYMENT**](#deployment)  \| [**TRACING AND MONITORING**](#tracing-and-monitoring)  \| [**DEV OPTIONS**](#dev-options)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
+MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \| [**DEPLOYMENT**](#deployment)  \| [**TRACING AND MONITORING**](#tracing-and-monitoring)  \| [**DEVELOPMENT OPTIONS**](#development-options)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
-[![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
-
-This project creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
+This solution contains a simple chat application that is deployed to Azure Container Apps.This solution also creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more.
 The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also instructions for developing in GitHub Codespaces and VS Code Dev Containers.
 
 ## Prerequisites
@@ -39,16 +20,13 @@ If you do not have an Azure Subscription, you can set one up following these ins
 #### Required tools
 Make sure the following tools are installed:
 
-1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) If you have the Azure Developer CLI already installed, you can update to latest version using:
-    ```shell
-    winget upgrade microsoft.azd
-    ```
+1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) Install or update to the latest version. Instructions can be found on the linked page.
 2. [Python 3.9+](https://www.python.org/downloads/)
 3. [Git](https://git-scm.com/downloads)
 
 #### Bringing an existing AI project resource
 
-This step applies if you have an existing AI project resource, and you want to bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
+This step applies if you have an existing AI project resource, and you want to bring it into the solution. You can do that by setting the following environment variable:
 
 ```shell
 azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
@@ -56,7 +34,7 @@ azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
 
 You can find the connection string on the overview page of your Azure AI project.
 
-If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
+This solution has been configured to use "gpt-4o-mini" model. If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
 
 ## Development
 
@@ -64,23 +42,37 @@ If you do not have a deployment named "gpt-4o-mini" in your existing AI project,
 Download the project code:
 
 ```shell
-azd init -t azureai-basic-python
+git clone https://github.com/Azure-Samples/azureai-basic-python.git
 ```
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
 #### Logging
-If you want to enable logging to file instead of console, make the following modifications to main.py:
+If you want to enable logging to file, add the following to main.py after the `logger.setLevel(logging.INFO)` call:
 
 ```code
-TBA
+# Setup logging to file.
+log_file_path = os.getenv("APP_LOG_FILE", "app.log")
+file_handler = logging.FileHandler(log_file_path)
+file_handler.setLevel(logging.INFO)
+file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
 ```
 
-#### Tracing to App Insights
-To enable tracing to App Insights, modify the value of ENABLE_AZURE_MONITOR_TRACING environment variable to true in Dockerfile found in src directory:
+ By default the file name app.log is used. You can provide your own file name by setting the environment variable APP_LOG_FILE in the Dockerfile located in the src directory:
+
+ ```
+ ENV APP_LOG_FILE=yourfilename
+ ```
+
+Consider whether you want to have logging to file enabled after the R&D phase, when running in production.
+
+#### Tracing to Azure Monitor
+To enable tracing to Azure Monitor, modify the value of ENABLE_AZURE_MONITOR_TRACING environment variable to true in Dockerfile found in src directory:
 ```code
 ENV ENABLE_AZURE_MONITOR_TRACING=true
 ```
-Note that the optinal App Insights resource is required for tracing (it is created by default).
+Note that the optional App Insights resource is required for tracing to Azure Monitor (it is created by default).
 
 To enable message contents to be included in the traces, set the following environment variable to true in the same Dockerfile. Note that the messages may contain personally identifiable information.
 
@@ -88,9 +80,9 @@ To enable message contents to be included in the traces, set the following envir
 ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
-#### Development Server
+#### Local Development Server
 
-You can optionally use a development server to test app changes locally. Make sure you first [deployed the app](#deployment) to Azure before running the development server.
+You can optionally use a local development server to test app changes locally. Make sure you first [deployed the app](#deployment) to Azure before running the development server.
 
 1. Create a [Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate it.
 
@@ -150,12 +142,22 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
     It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
 4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
+   You can view information about your deployment with:
+    ```shell
+    azd show
+    ```
+
 
 5. If you make further modification to the app code, you can deploy the updated version with:
 
     ```shell
     azd deploy
     ```
+    You can get more detailed output with the ```--debug``` parameter.
+    ```shell
+    azd deploy --debug
+    ```
+    Check for any errors during the deployment, since updated app code will not get deployed if errors occur.
 
 ## Tracing and Monitoring
 
@@ -166,7 +168,7 @@ If you enabled logging to file, you can view the log file by... TBA
 
 You can view the App Insights tracing here: TBA
 
-## Dev Options
+## Development Options
 
 Instead of local development environment, the following alternative development environments can be used.
 
