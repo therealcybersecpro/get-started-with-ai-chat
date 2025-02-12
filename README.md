@@ -26,8 +26,8 @@ The main path walks you through deploying the application using local developmen
 
 * [Prerequisites](#prerequisites)
   * [Azure account](#azure-account)
-  * [Bringing an existing AI project resource](#bringing-an-existing-ai-project-resource)
   * [Required tools](#required-tools)
+  * [Bringing an existing AI project resource](#bringing-an-existing-ai-project-resource)
 * [Development](#development)
   * [Code](#code)
   * [Logging](#logging)
@@ -54,6 +54,16 @@ If you do not have an Azure Subscription, you can set one up following these ins
     * Your Azure account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
     * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
 
+### Required tools
+Make sure the following tools are installed:
+
+1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) If you have the Azure Developer CLI already installed, you can update to latest version using:
+    ```shell
+    winget upgrade microsoft.azd
+    ```
+2. [Python 3.9+](https://www.python.org/downloads/)
+3. [Git](https://git-scm.com/downloads)
+
 ### Bringing an existing AI project resource
 
 This step applies if you have an existing AI project resource, and you want to bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
@@ -65,17 +75,6 @@ azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
 You can find the connection string on the overview page of your Azure AI project.
 
 If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
-
-
-### Required tools
-Make sure the following tools are installed:
-
-1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) If you have the Azure Developer CLI already installed, you can update to latest version using:
-    ```shell
-    winget upgrade microsoft.azd
-    ```
-2. [Python 3.9+](https://www.python.org/downloads/)
-3. [Git](https://git-scm.com/downloads)
 
 ## Development
 
