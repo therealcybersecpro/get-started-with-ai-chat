@@ -34,7 +34,7 @@ The main path walks you through deploying the application using local developmen
   * [Tracing to App Insights](#tracing-to-app-insights)
 * [Deployment](#deployment)
 * [Tracing and Monitoring](#tracing-and-monitoring)
-* [Development server](#development-server)
+* [Development Server](#development-server)
 * [Alternatives to Local Development](#alternatives-to-local-development)
   * [GitHub Codespaces](#github-codespaces)
   * [VS Code Dev Containers](#vs-code-dev-containers)
@@ -142,7 +142,7 @@ If you enabled logging to file, you can view the log file by... TBA
 
 You can view the App Insights tracing here: TBA
 
-## Development server
+## Development Server
 
 You can optionally use a development server to test app changes locally. Make sure you first [deployed the app](#deploying) to Azure before running the development server.
 
