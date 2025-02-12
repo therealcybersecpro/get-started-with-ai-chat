@@ -22,99 +22,92 @@ description: Creates an Azure AI Foundry hub, project and required dependent res
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
 This project creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
+The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also insturctions for developing in GitHub Codespaces and VS Code Dev Containers.
 
-* [Features](#features)
-* [Architecture diagram](#architecture-diagram)
-* [Getting started](#getting-started)
+* [Prerequisites](#prerequisites)
+  * [Azure account](#azure-account)
+  * [Bringing an existing AI project resource](#bringing-an-existing-ai-project-resource)
+  * [Required tools](#required-tools)
+* [Development](#development)
+  * [Code](#code)
+  * [Logging](#logging)
+  * [Tracing to App Insights](#tracing-to-app-insights)
+* [Deployment](#deployment)
+* [Tracing and Monitoring](#tracing-and-monitoring)
+* [Development server](#development-server)
+* [Alternatives to Local Development](#alternatives-to-local-development)
   * [GitHub Codespaces](#github-codespaces)
   * [VS Code Dev Containers](#vs-code-dev-containers)
-  * [Local environment](#local-environment)
-* [Deploying](#deploying)
-* [Development server](#development-server)
-* [Guidance](#guidance)
-* [Resources](#resources)
+* [Additional Information](#additional-information)
+  * [Costs](#costs)
+  * [Security guidelines](#security-guidelines)
+  * [Resources](#resources)
 
-## Features
 
-This template creates everything you need to get started with Azure AI Foundry:
+## Prerequisites
 
-* [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
-* [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
-* [Azure AI Service](https://learn.microsoft.com/azure/ai-services): Default models deployed are gpt-4o-mini and text-embedding-ada-002, but any Azure AI models can be specified per the [documentation](docs/deploy_customization.md#customizing-model-deployments).
-* [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, disabled by default)*
-
-The template also includes dependent resources required by all AI Hub resources:
-
-* [Storage Account](https://learn.microsoft.com/azure/storage/blobs/)
-* [Key Vault](https://learn.microsoft.com/azure/key-vault/general/)
-* [Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) *(Optional, enabled by default)*
-* [Container Registry](https://learn.microsoft.com/azure/container-registry/) *(Optional, enabled by default)*
-
-## Architecture diagram
-
-![Architecture diagram showing that user input used in conjunction with user identity to call app code running in Azure Container apps that processes the user input and generates a response to the user. The app code leverages Azure AI projects, Azure AI model inference, prompty, and Azure AI Search.](docs/architecture.png)
-
-## Getting started
-
-You have a few options for getting started with this template.
-The quickest way to get started is GitHub Codespaces, since it will setup all the tools for you, but you can also [set it up locally](#local-environment).
-
-### GitHub Codespaces
-
-You can run this template virtually by using GitHub Codespaces. The button will open a web-based VS Code instance in your browser:
-
-1. Open the template (this may take several minutes):
-
-    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
-
-2. Open a terminal window
-3. Continue with the [deploying steps](#deploying)
-
-### VS Code Dev Containers
-
-A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
-
-1. Start Docker Desktop (install it if not already installed)
-2. Open the project:
-
-    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
-
-3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
-4. Continue with the [deploying steps](#deploying)
-
-### Local environment
-
-If you're not using one of the above options for opening the project, then you'll need to:
-
-1. Make sure the following tools are installed:
-
-    * [Azure Developer CLI (azd)](https://aka.ms/install-azd)
-    * [Python 3.9+](https://www.python.org/downloads/)
-    * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-    * [Git](https://git-scm.com/downloads)
-
-2. Download the project code:
-
-    ```shell
-    azd init -t azureai-basic-python
-    ```
-
-3. Open the project folder in your terminal or editor.
-
-4. Continue with the [deploying steps](#deploying).
-
-## Deploying
-
-Once you've opened the project in [Codespaces](#github-codespaces), in [Dev Containers](#vs-code-dev-containers), or [locally](#local-environment), you can deploy it to Azure.
-
-### Azure account setup
+### Azure account
+If you do not have an Azure Subscription, you can set one up following these instructions:
 
 1. Sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
 2. Check that you have the necessary permissions:
     * Your Azure account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
     * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
 
-### Deploying with azd
+### Bringing an existing AI project resource
+
+This step applies if you have an existing AI project resource, and you want to bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
+
+```shell
+azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
+```
+
+You can find the connection string on the overview page of your Azure AI project.
+
+If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
+
+
+### Required tools
+Make sure the following tools are installed:
+
+1. [Azure Developer CLI (azd)](https://aka.ms/install-azd) If you have the Azure Developer CLI already installed, you can update to latest version using:
+    ```shell
+    winget upgrade microsoft.azd
+    ```
+2. [Python 3.9+](https://www.python.org/downloads/)
+3. [Git](https://git-scm.com/downloads)
+
+## Development
+
+### Code
+Download the project code:
+
+```shell
+azd init -t azureai-basic-python
+```
+At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
+
+### Logging
+If you want to enable logging to file instead of console, make the following modifications to main.py:
+
+```code
+TBA
+```
+
+### Tracing to App Insights
+To enable tracing to App Insights, modify the value of ENABLE_AZURE_MONITOR_TRACING environment variable to true in Dockerfile found in src directory:
+```code
+ENV ENABLE_AZURE_MONITOR_TRACING=true
+```
+Note that the optinal App Insights resource is required for tracing (it is created by default).
+
+To enable message contents to be included in the traces, set the following environment variable to true in the same Dockerfile. Note that the messages may contain personally identifiable information.
+
+```code
+ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
+```
+
+## Deployment
 
 1. Login to Azure:
 
@@ -135,23 +128,24 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 
 4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
 
-5. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`.
+5. If you make further modification to the app code, you can deploy the updated version with:
 
-### Bringing an existing AI project resource
+    ```shell
+    azd deploy
+    ```
 
-If you have an existing AI project resource, you can bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
+## Tracing and Monitoring
 
-```shell
-azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
-```
+You can view console logs here: TBA
+Choose the app option to view the logs from the app. You can also switch between historical and real-time views on the UI.
 
-You can find the connection string on the overview page of your Azure AI project.
+If you enabled logging to file, you can view the log file by... TBA
 
-If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
+You can view the App Insights tracing here: TBA
 
 ## Development server
 
-Make sure you first [deployed the app](#deploying) to Azure before running the development server.
+You can optionally use a development server to test app changes locally. Make sure you first [deployed the app](#deploying) to Azure before running the development server.
 
 1. Create a [Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate it.
 
@@ -191,7 +185,33 @@ Make sure you first [deployed the app](#deploying) to Azure before running the d
 
 6. Enter your message in the box.
 
-## Guidance
+## Alternatives to Local Development
+
+### GitHub Codespaces
+
+You can run this template virtually by using GitHub Codespaces. The button will open a web-based VS Code instance in your browser:
+
+1. Open the template (this may take several minutes):
+
+    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
+
+2. Open a terminal window
+3. Continue with the [deploying steps](#deployment)
+
+### VS Code Dev Containers
+
+A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
+
+1. Start Docker Desktop (install it if not already installed [Docker Desktop](https://www.docker.com/products/docker-desktop/))
+2. Open the project:
+
+    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
+
+3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
+4. Continue with the [deploying steps](#deployment)
+
+
+## Additional Information
 
 ### Costs
 
@@ -227,4 +247,16 @@ You may want to consider additional security measures, such as:
 
 ### Resources
 
-Links to documentation for the resources used in this template.
+This template creates everything you need to get started with Azure AI Foundry:
+
+* [AI Hub Resource](https://learn.microsoft.com/azure/ai-studio/concepts/ai-resources)
+* [AI Project](https://learn.microsoft.com/azure/ai-studio/how-to/create-projects)
+* [Azure AI Service](https://learn.microsoft.com/azure/ai-services): Default models deployed are gpt-4o-mini and text-embedding-ada-002, but any Azure AI models can be specified per the [documentation](docs/deploy_customization.md#customizing-model-deployments).
+* [AI Search Service](https://learn.microsoft.com/azure/search/) *(Optional, disabled by default)*
+
+The template also includes dependent resources required by all AI Hub resources:
+
+* [Storage Account](https://learn.microsoft.com/azure/storage/blobs/)
+* [Key Vault](https://learn.microsoft.com/azure/key-vault/general/)
+* [Application Insights](https://learn.microsoft.com/azure/azure-monitor/app/app-insights-overview) *(Optional, enabled by default)*
+* [Container Registry](https://learn.microsoft.com/azure/container-registry/) *(Optional, enabled by default)*
