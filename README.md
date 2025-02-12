@@ -16,33 +16,15 @@ description: Creates an Azure AI Foundry hub, project and required dependent res
 ---
 <!-- YAML front-matter schema: https://review.learn.microsoft.com/en-us/help/contribute/samples/process/onboarding?branch=main#supported-metadata-fields-for-readmemd -->
 
-# Azure AI Foundry Starter Template
+# Get Started with Chat Using Azure AI Foundry
+
+MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \| [**DEPLOYMENT**](#deployment)  \| [**TRACING AND MONITORING**](#tracing-and-monitoring)  \| [**ALTERNATIVES TO LOCAL ENVIRONMENT**](#alternatives-to-local-environment)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
 
 This project creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. It also deploys a simple chat application to Azure Container Apps.
 The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also instructions for developing in GitHub Codespaces and VS Code Dev Containers.
-
-* [Prerequisites](#prerequisites)
-  * [Azure account](#azure-account)
-  * [Required tools](#required-tools)
-  * [Bringing an existing AI project resource](#bringing-an-existing-ai-project-resource)
-* [Development](#development)
-  * [Code](#code)
-  * [Logging](#logging)
-  * [Tracing to App Insights](#tracing-to-app-insights)
-* [Deployment](#deployment)
-* [Tracing and Monitoring](#tracing-and-monitoring)
-* [Development Server](#development-server)
-* [Alternatives to Local Development](#alternatives-to-local-development)
-  * [GitHub Codespaces](#github-codespaces)
-  * [VS Code Dev Containers](#vs-code-dev-containers)
-* [Supporting Documentation](#supporting-documentation)
-  * [Costs](#costs)
-  * [Security guidelines](#security-guidelines)
-  * [Resources](#resources)
-
 
 ## Prerequisites
 
@@ -106,45 +88,9 @@ To enable message contents to be included in the traces, set the following envir
 ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
-## Deployment
+#### Development Server
 
-1. Login to Azure:
-
-    ```shell
-    azd auth login
-    ```
-
-2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
-or [customize the models](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now.
-
-3. Provision and deploy all the resources:
-
-    ```shell
-    azd up
-    ```
-
-    It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
-
-4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
-
-5. If you make further modification to the app code, you can deploy the updated version with:
-
-    ```shell
-    azd deploy
-    ```
-
-## Tracing and Monitoring
-
-You can view console logs here: TBA
-Choose the app option to view the logs from the app. You can also switch between historical and real-time views on the UI.
-
-If you enabled logging to file, you can view the log file by... TBA
-
-You can view the App Insights tracing here: TBA
-
-## Development Server
-
-You can optionally use a development server to test app changes locally. Make sure you first [deployed the app](#deploying) to Azure before running the development server.
+You can optionally use a development server to test app changes locally. Make sure you first [deployed the app](#deployment) to Azure before running the development server.
 
 1. Create a [Python virtual environment](https://docs.python.org/3/tutorial/venv.html#creating-virtual-environments) and activate it.
 
@@ -183,6 +129,42 @@ You can optionally use a development server to test app changes locally. Make su
 5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
 
 6. Enter your message in the box.
+
+## Deployment
+
+1. Login to Azure:
+
+    ```shell
+    azd auth login
+    ```
+
+2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
+or [customize the models](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now.
+
+3. Provision and deploy all the resources:
+
+    ```shell
+    azd up
+    ```
+
+    It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
+
+4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
+
+5. If you make further modification to the app code, you can deploy the updated version with:
+
+    ```shell
+    azd deploy
+    ```
+
+## Tracing and Monitoring
+
+You can view console logs here: TBA
+Choose the app option to view the logs from the app. You can also switch between historical and real-time views on the UI.
+
+If you enabled logging to file, you can view the log file by... TBA
+
+You can view the App Insights tracing here: TBA
 
 ## Alternatives to Local Development Environment
 
