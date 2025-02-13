@@ -7,6 +7,10 @@ MENU: [**PREREQUISITES**](#prerequisites) \| [**DEVELOPMENT**](#development)  \|
 This solution contains a simple chat application that is deployed to Azure Container Apps.This solution also creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more.
 The main path walks you through deploying the application using local development environment. After the local development environment instructions, there are also instructions for developing in GitHub Codespaces and VS Code Dev Containers.
 
+#### Architecture diagram
+
+![Architecture diagram showing that user input used in conjunction with user identity to call app code running in Azure Container apps that processes the user input and generates a response to the user. The app code leverages Azure AI projects, Azure AI model inference, prompty, and Azure AI Search.](docs/architecture.png)
+
 ## Prerequisites
 
 #### Azure account
@@ -165,7 +169,14 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 
 ## Tracing and Monitoring
 
-You can view console logs in Azure portal. On the Azure portal page, select your resource group from the 'Recent' list, or by clicking the 'Resource groups' and searching your resource group there. After clicking your resource group, choose your container app from the list of resources. Then open 'Monitoring' and 'Log Stream'. Choose the 'Application' radio button to view application logs. You can choose between real-time and historical using the corresponding radio buttons. Note that it may take some time for the historical view to be updated with the latest logs.
+You can view console logs in Azure portal. You can get the link to the resource group with the azd tool:
+```shell
+azd show
+```
+
+Or if you want to navigate from the Azure portal main page, select your resource group from the 'Recent' list, or by clicking the 'Resource groups' and searching your resource group there.
+
+After accessing you resource group in Azure portal, choose your container app from the list of resources. Then open 'Monitoring' and 'Log Stream'. Choose the 'Application' radio button to view application logs. You can choose between real-time and historical using the corresponding radio buttons. Note that it may take some time for the historical view to be updated with the latest logs.
 
 If you enabled logging to a file, you can view the log file by choosing 'Console' under the 'Monitoring' (same location as above for the console traces), opening the default console and then for example running the following command (replace app.log with the actual name of your log file):
 
