@@ -10,12 +10,14 @@ The main path walks you through deploying the application using local developmen
 ## Prerequisites
 
 #### Azure account
-If you do not have an Azure Subscription, you can set one up following these instructions:
+If you do not have an Azure Subscription, you can sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
 
-1. Sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
-2. Check that you have the necessary permissions:
-    * Your Azure account must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
-    * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
+**NOTE!** Whether you sign up for new account, or you are using an existing subsription, check that you have the necessary permissions:
+
+* Your Azure account for the Azure Subscription that you are using must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
+* Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
+
+You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click the role you want to view more information about.
 
 #### Required tools
 Make sure the following tools are installed:
@@ -141,6 +143,8 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 
     It will prompt you to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then it will provision the resources in your account and deploy the latest code. If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
+    **NOTE!** If you get authorization failed and/or permission related errors during the deployment, please refer to the Azure account requirements in the [Prerequisites](#prerequisites) section.
+
 4. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
    You can view information about your deployment with:
     ```shell
@@ -161,12 +165,15 @@ or [customize the models](docs/deploy_customization.md#customizing-model-deploym
 
 ## Tracing and Monitoring
 
-You can view console logs here: TBA
-Choose the app option to view the logs from the app. You can also switch between historical and real-time views on the UI.
+You can view console logs in Azure portal. On the Azure portal page, select your resource group from the 'Recent' list, or by clicking the 'Resource groups' and searching your resource group there. After clicking your resource group, choose your container app from the list of resources. Then open 'Monitoring' and 'Log Stream'. Choose the 'Application' radio button to view application logs. You can choose between real-time and historical using the corresponding radio buttons. Note that it may take some time for the historical view to be updated with the latest logs.
 
-If you enabled logging to file, you can view the log file by... TBA
+If you enabled logging to a file, you can view the log file by choosing 'Console' under the 'Monitoring' (same location as above for the console traces), opening the default console and then for example running the following command (replace app.log with the actual name of your log file):
 
-You can view the App Insights tracing here: TBA
+```shell
+more app.log
+```
+
+You can view the App Insights tracing in Azure AI Foundry. Select your project on the Azure AI Foundry page and then click 'Tracing'.
 
 ## Development Options
 
