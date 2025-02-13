@@ -170,9 +170,12 @@ You can view the App Insights tracing here: TBA
 
 ## Development Options
 
-Instead of local development environment, the following alternative development environments can be used.
+As an alternative to local development environment, the following development environment options can be used.
 
-#### GitHub Codespaces
+<details>
+  <summary><b>GitHub Codespaces</b></summary>
+
+#### Deploy in GitHub Codespaces
 
 You can run this template virtually by using GitHub Codespaces. The button will open a web-based VS Code instance in your browser:
 
@@ -182,6 +185,11 @@ You can run this template virtually by using GitHub Codespaces. The button will 
 
 2. Open a terminal window
 3. Continue with the [deploying steps](#deployment)
+
+</details>
+
+<details>
+  <summary><b>VS Code Dev Containers</b></summary>
 
 #### VS Code Dev Containers
 
@@ -194,7 +202,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
 
 3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
 4. Continue with the [deploying steps](#deployment)
-
+</details>
 
 ## Supporting Documentation
 
