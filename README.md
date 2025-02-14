@@ -16,12 +16,12 @@ The main path walks you through deploying the application using local developmen
 #### Azure account
 If you do not have an Azure Subscription, you can sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
 
-**NOTE!** Whether you sign up for new account, or you are using an existing subsription, check that you have the necessary permissions:
+**NOTE!** Whether you sign up for a new account, or use an existing subscription, check that you have the necessary permissions:
 
 * Your Azure account for the Azure Subscription that you are using must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
 * Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
 
-You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click the role you want to view more information about.
+You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click on the role you want to view more information about.
 
 #### Required tools
 Make sure the following tools are installed:
@@ -53,23 +53,15 @@ git clone https://github.com/Azure-Samples/azureai-basic-python.git
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
 #### Logging
-If you want to enable logging to file, add the following to main.py after the `logger.setLevel(logging.INFO)` call:
-
-```code
-# Setup logging to file.
-log_file_path = os.getenv("APP_LOG_FILE", "app.log")
-file_handler = logging.FileHandler(log_file_path)
-file_handler.setLevel(logging.INFO)
-file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-file_handler.setFormatter(file_formatter)
-logger.addHandler(file_handler)
-```
-
- By default the file name app.log is used. You can provide your own file name by setting the environment variable APP_LOG_FILE in the Dockerfile located in the src directory:
+If you want to enable logging to a file, uncomment the following line in Dockerfile located in the src directory:
 
  ```
- ENV APP_LOG_FILE=yourfilename
+ ENV APP_LOG_FILE=app.log
  ```
+
+ By default the file name app.log is used. You can provide your own file name by replacing app.log with the desired log file name.
+
+ **NOTE!** Any changes to the Dockerfile require a re-deployment in order for the changes to take effect.
 
 Consider whether you want to have logging to file enabled after the R&D phase, when running in production.
 
