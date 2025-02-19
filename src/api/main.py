@@ -64,6 +64,7 @@ async def lifespan(app: fastapi.FastAPI):
     )
 
     if enable_trace:
+        application_insights_connection_string = ""
         try:
             application_insights_connection_string = await project.telemetry.get_connection_string()
         except Exception as e:
