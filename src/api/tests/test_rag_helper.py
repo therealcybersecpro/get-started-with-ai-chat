@@ -28,7 +28,7 @@ class MockAsyncIterator:
 class TestRAGHelper(unittest.IsolatedAsyncioTestCase):
     """Tests for the RAG helper."""
 
-    INPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+    INPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'data')
     EMBEDDINGS_FILE = os.path.join(INPUT_DIR, 'embeddings.csv')
     
     @classmethod
