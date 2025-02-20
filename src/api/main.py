@@ -18,6 +18,31 @@ from .rag_helper import RAGHelper
 logger = logging.getLogger("azureaiapp")
 logger.setLevel(logging.INFO)
 
+# Configure logging to file, if log file name is provided
+log_file_name = os.getenv("APP_LOG_FILE")
+if log_file_name is not None:
+    file_handler = logging.FileHandler(log_file_name)
+    file_handler.setLevel(logging.INFO)
+    file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
+enable_trace_string = os.getenv("ENABLE_AZURE_MONITOR_TRACING")
+enable_trace = False
+if enable_trace_string is None:
+    enable_trace = False
+else:
+    enable_trace = str(enable_trace_string).lower() == "true"
+if enable_trace:
+    logger.info("Tracing is enabled.")
+    try:
+        from azure.monitor.opentelemetry import configure_azure_monitor
+    except ModuleNotFoundError:
+        logger.error("Required libraries for tracing not installed.")
+        logger.error("Please make sure azure-monitor-opentelemetry is installed.")
+        exit()
+else:
+    logger.info("Tracing is not enabled")
 
 @contextlib.asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
@@ -39,6 +64,20 @@ async def lifespan(app: fastapi.FastAPI):
         credential=azure_credential,
         conn_str=os.environ["AZURE_AIPROJECT_CONNECTION_STRING"],
     )
+
+    if enable_trace:
+        application_insights_connection_string = ""
+        try:
+            application_insights_connection_string = await project.telemetry.get_connection_string()
+        except Exception as e:
+            e_string = str(e)
+            logger.error("Failed to get Application Insights connection string, error: %s", e_string)
+        if not application_insights_connection_string:
+            logger.error("Application Insights was not enabled for this project.")
+            logger.error("Enable it via the 'Tracing' tab in your AI Foundry project page.")
+            exit()
+        else:
+            configure_azure_monitor(connection_string=application_insights_connection_string)
 
     chat = await project.inference.get_chat_completions_client()
     prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
@@ -64,7 +103,11 @@ async def lifespan(app: fastapi.FastAPI):
         await rag.create_index_maybe(dimensions_override=100)
         if await rag.is_index_empty():
             logger.info(f"Uploading documents to {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-            await rag.upload_documents(os.path.join(os.path.dirname(__file__), 'data', 'embeddings.csv'))
+            await rag.upload_documents(
+                os.path.join(
+                    os.path.dirname(
+                        os.path.dirname(
+                            os.path.dirname(__file__))), 'data', 'embeddings.csv'))
         
 
     globals["project"] = project
