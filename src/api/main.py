@@ -89,18 +89,23 @@ async def lifespan(app: fastapi.FastAPI):
         break
     
     rag = None
+    
+    embed_dimensions = None
+    if os.getenv('AZURE_AI_EMBED_DIMENSIONS'):
+        embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
+        
     if endpoint and os.getenv('AZURE_AI_SEARCH_INDEX_NAME') and os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'):
         rag = RAGHelper(
             endpoint = endpoint,
             credential = azure_credential,
             index_name = os.getenv('AZURE_AI_SEARCH_INDEX_NAME'),
-            dimensions = 100,
-            model=os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'),
+            dimensions = embed_dimensions,
+            model = os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'),
             embeddings_client=embed
         )
         # Create index and upload the documents only if index does not exist.
         logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-        await rag.create_index_maybe(dimensions_override=100)
+        await rag.create_index_maybe(dimensions_override=embed_dimensions if embed_dimensions else 100)
         if await rag.is_index_empty():
             logger.info(f"Uploading documents to {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
             await rag.upload_documents(

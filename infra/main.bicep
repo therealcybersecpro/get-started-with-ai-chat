@@ -64,6 +64,8 @@ param keyVaultName string = ''
 param searchServiceName string = ''
 @description('The Azure Search connection name. If ommited will use a default value')
 param searchConnectionName string = ''
+@description('The search inex name')
+param aiSearchIndexName string = ''
 @description('The Azure Storage Account resource name. If ommited will be generated')
 param storageAccountName string = ''
 @description('The log analytics workspace name. If ommited will be generated')
@@ -103,6 +105,8 @@ param embedModelFormat string
 param embedModelName string
 @description('Name of the embedding model deployment')
 param embedDeploymentName string
+@description('Embedding model dimensionality')
+param embedDeploymentDimensions string
 
 @description('Version of the embedding model to deploy')
 // See version availability in this table:
@@ -120,7 +124,8 @@ param embedDeploymentCapacity int
 
 param useContainerRegistry bool = true
 param useApplicationInsights bool = true
-param useSearch bool = false
+@description('Use the RAG search')
+param useSearchService bool = false
 
 var abbrs = loadJsonContent('./abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -197,10 +202,10 @@ module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnecti
       ? ''
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
     containerRegistryName: containerRegistryResolvedName
-    searchServiceName: !useSearch
+    searchServiceName: !useSearchService
       ? ''
       : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
-    searchConnectionName: !useSearch
+    searchConnectionName: !useSearchService
       ? ''
       : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
   }
@@ -321,6 +326,7 @@ module containerApps 'core/host/container-apps.bicep' = {
   }
 }
 
+
 // API app
 module api 'api.bicep' = {
   name: 'api'
@@ -334,6 +340,9 @@ module api 'api.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     projectConnectionString: projectConnectionString
     chatDeploymentName: chatDeploymentName
+    embedDeploymentName: embedDeploymentName
+    embedDeploymentDimensions: embedDeploymentDimensions
+    aiSearchIndexName: aiSearchIndexName
     exists: apiAppExists
   }
 }
@@ -344,6 +353,9 @@ output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
 output AZURE_AI_CHAT_DEPLOYMENT_NAME string = chatDeploymentName
+output AZURE_AI_EMBED_DEPLOYMENT_NAME string = embedDeploymentName
+output AZURE_AI_SEARCH_INDEX_NAME string = aiSearchIndexName
+output AZURE_AI_EMBED_DIMENSIONS string = embedDeploymentDimensions
 
 // Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
