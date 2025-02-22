@@ -12,6 +12,7 @@ param chatDeploymentName string
 param embedDeploymentName string
 param aiSearchIndexName string
 param embedDeploymentDimensions string
+param searchServiceEndpoint string
 
 resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -46,6 +47,10 @@ var env = [
   {
     name: 'RUNNING_IN_PRODUCTION'
     value: 'true'
+  }
+  {
+    name: 'AZURE_AI_SEARCH_ENDPOINT'
+    value: searchServiceEndpoint
   }
 ]
 

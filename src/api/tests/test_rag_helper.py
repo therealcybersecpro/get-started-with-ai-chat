@@ -11,7 +11,7 @@ from azure.identity.aio import DefaultAzureCredential
 from routes import ChatRequest, Message
 from rag_helper import RAGHelper
 from azure.ai.projects.aio import AIProjectClient
-from azure.core.exceptions import ResourceNotFoundError
+from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 
 
 class MockAsyncIterator:
@@ -77,6 +77,21 @@ class TestRAGHelper(unittest.IsolatedAsyncioTestCase):
                 dimensions=100500)
             mock_aenter.get_index.assert_called_once()
             mock_aenter.create_index.assert_not_called()
+
+    async def test_create_index_or_false_mock(self):
+        mock_ix_client = AsyncMock()
+        mock_aenter = AsyncMock()
+        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
+            mock_ix_client.__aenter__.return_value = mock_aenter
+            rag = self._get_mock_rag(AsyncMock())
+            result = await rag.create_index_or_false(100)
+            self.assertTrue(result)
+            mock_aenter.create_index.side_effect = HttpResponseError("Mock")
+            result = await rag.create_index_or_false(100)
+            self.assertFalse(result)
+            mock_aenter.create_index.side_effect = ValueError("Mock")
+            with self.assertRaisesRegex(ValueError, "Mock"):
+                await rag.create_index_or_false(100)
 
     async def test_no_index_exception(self):
         """Test that attempt to search without index causes the exception."""
@@ -169,7 +184,7 @@ class TestRAGHelper(unittest.IsolatedAsyncioTestCase):
             embeddings_client=AsyncMock()
         )
         with self.assertRaisesRegex(ValueError, "No embedding dimensions were provided.+"):
-            await rag.create_index_maybe(dimensions_override=None)
+            await rag.create_index_maybe(vector_index_dimensions=None)
 
     async def test_exception_different_dinmensions(self):
         """Test the exception shown if dimensions and dinensions_override are different."""
@@ -181,8 +196,8 @@ class TestRAGHelper(unittest.IsolatedAsyncioTestCase):
             model="mock_embedding_model",
             embeddings_client=AsyncMock()
         )
-        with self.assertRaisesRegex(ValueError, "dimensions_override is different from dimensions provided to constructor."):
-            await rag.create_index_maybe(dimensions_override=42)
+        with self.assertRaisesRegex(ValueError, "vector_index_dimensions is different from dimensions provided to constructor."):
+            await rag.create_index_maybe(vector_index_dimensions=42)
 
     @unittest.skip("Only for live tests.")
     async def test_e2e(self):

@@ -5,7 +5,6 @@ import pathlib
 from typing import Union
 
 import fastapi
-from azure.ai.projects.models import ConnectionType
 from azure.ai.projects.aio import AIProjectClient
 from azure.ai.inference.prompts import PromptTemplate
 from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredential
@@ -83,13 +82,8 @@ async def lifespan(app: fastapi.FastAPI):
     prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
     embed = await project.inference.get_embeddings_client()
 
-    endpoint = None
-    for conn in await project.connections.list(connection_type=ConnectionType.AZURE_AI_SEARCH):
-        endpoint = conn.endpoint_url
-        break
-    
+    endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
     rag = None
-    
     embed_dimensions = None
     if os.getenv('AZURE_AI_EMBED_DIMENSIONS'):
         embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
@@ -105,15 +99,7 @@ async def lifespan(app: fastapi.FastAPI):
         )
         # Create index and upload the documents only if index does not exist.
         logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-        await rag.create_index_maybe(dimensions_override=embed_dimensions if embed_dimensions else 100)
-        if await rag.is_index_empty():
-            logger.info(f"Uploading documents to {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-            await rag.upload_documents(
-                os.path.join(
-                    os.path.dirname(
-                        os.path.dirname(
-                            os.path.dirname(__file__))), 'data', 'embeddings.csv'))
-        
+        await rag.create_index_maybe(vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
 
     globals["project"] = project
     globals["chat"] = chat
@@ -122,7 +108,7 @@ async def lifespan(app: fastapi.FastAPI):
     globals["rag_prompt"] = prompt
     globals["prompt"] = PromptTemplate.from_string('You are a helpful assistant')
     globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
-    globals["embed_model"] = os.environ["AZURE_AI_EMBED_DEPLOYMENT_NAME"]
+    globals["embed_model"] = os.environ.get("AZURE_AI_EMBED_DEPLOYMENT_NAME")
     yield
 
     await project.close()

@@ -179,6 +179,10 @@ var containerRegistryResolvedName = !useContainerRegistry
   ? ''
   : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
 
+var resolvedSearchServiceName = !useSearchService
+  ? ''
+  : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
+
 module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnectionString)) {
   name: 'ai'
   scope: rg
@@ -202,14 +206,16 @@ module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnecti
       ? ''
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
     containerRegistryName: containerRegistryResolvedName
-    searchServiceName: !useSearchService
-      ? ''
-      : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
+    searchServiceName: resolvedSearchServiceName
     searchConnectionName: !useSearchService
       ? ''
       : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
   }
 }
+
+var searchServiceEndpoint = !useSearchService
+      ? ''
+      : ai.outputs.searchServiceEndpoint
 
 // If bringing an existing AI project, set up the log analytics workspace here
 module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(aiExistingProjectConnectionString)) {
@@ -307,6 +313,33 @@ module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bice
   }
 }
 
+module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+  name: 'backend-role-azure-index-data-contributor-rg'
+  scope: existingProjectRG
+  params: {
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
+  }
+}
+
+module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+  name: 'backend-role-azure-index-data-reader-rg'
+  scope: existingProjectRG
+  params: {
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
+  }
+}
+
+module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+  name: 'backend-role-azure-search-service-contributor-rg'
+  scope: existingProjectRG
+  params: {
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
+  }
+}
+
 //Container apps host and api
 // Container apps host (including container registry)
 module containerApps 'core/host/container-apps.bicep' = {
@@ -343,6 +376,7 @@ module api 'api.bicep' = {
     embedDeploymentName: embedDeploymentName
     embedDeploymentDimensions: embedDeploymentDimensions
     aiSearchIndexName: aiSearchIndexName
+    searchServiceEndpoint: searchServiceEndpoint
     exists: apiAppExists
   }
 }
@@ -355,6 +389,7 @@ output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
 output AZURE_AI_CHAT_DEPLOYMENT_NAME string = chatDeploymentName
 output AZURE_AI_EMBED_DEPLOYMENT_NAME string = embedDeploymentName
 output AZURE_AI_SEARCH_INDEX_NAME string = aiSearchIndexName
+output AZURE_AI_SEARCH_ENDPOINT string = searchServiceEndpoint
 output AZURE_AI_EMBED_DIMENSIONS string = embedDeploymentDimensions
 
 // Outputs required by azd for ACA
