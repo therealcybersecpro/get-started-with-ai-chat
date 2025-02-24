@@ -79,7 +79,7 @@ ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
 #### RAG model
-The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. All these steps can be done by calling the code
+The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. To train the model with different data set, or different model, please run the script:
 ```python
 from .api.rag_helper import RAGHelper
 
@@ -102,7 +102,7 @@ USE_SEARCH_SERVICE=true
 AZURE_AI_SEARCH_INDEX_NAME=index_sample
 AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 ```
-If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used.
+If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used. 
 
 #### Local Development Server
 
