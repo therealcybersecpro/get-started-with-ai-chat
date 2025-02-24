@@ -79,8 +79,10 @@ ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
 #### RAG model
-The source code comes with the data set about hiking products as an example. It consists of `.md` files, containing descriptions of the products. To build the RAG model, we split the data by sentences and build pairs of embeddings and corresponding contexts. This can be done by calling the code
+The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. All these steps can be done by calling the code
 ```python
+from .api.rag_helper import RAGHelper
+
 rag = RAGHelper(
     endpoint=self.search_endpoint,
     credential=your_credentials,
@@ -94,13 +96,13 @@ await rag.build_embeddings_file(
     output_file='data/embeddings.csv'
 )
 ```
-We have also included the `embeddings.csv` into the data directory, it was obtained by using `text-embedding-3-small` model with dimensions equals to 100.
 For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To run the application locally with RAG model, please provide the next environmet variables:
 ```
+USE_SEARCH_SERVICE=true
 AZURE_AI_SEARCH_INDEX_NAME=index_sample
 AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 ```
-If these variables were not set, or there is no Azure AI Search connection, RAG search will not be used.
+If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used.
 
 #### Local Development Server
 
