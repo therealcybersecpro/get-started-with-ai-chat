@@ -233,6 +233,49 @@ var projectConnectionString = empty(hostName)
   ? aiExistingProjectConnectionString
   : '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
 
+
+//Container apps host and api
+// Container apps host (including container registry)
+module containerApps 'core/host/container-apps.bicep' = {
+  name: 'container-apps'
+  scope: rg
+  params: {
+    name: 'app'
+    location: location
+    tags: tags
+    containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
+    containerRegistryName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.containerRegistryName
+      : containerRegistryResolvedName
+    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
+      ? ai.outputs.logAnalyticsWorkspaceName
+      : logAnalytics.outputs.name
+  }
+}
+
+
+// API app
+module api 'api.bicep' = {
+  name: 'api'
+  scope: rg
+  params: {
+    name: 'ca-api-${resourceToken}'
+    location: location
+    tags: tags
+    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
+    containerAppsEnvironmentName: containerApps.outputs.environmentName
+    containerRegistryName: containerApps.outputs.registryName
+    projectConnectionString: projectConnectionString
+    chatDeploymentName: chatDeploymentName
+    embedDeploymentName: embedDeploymentName
+    embedDeploymentDimensions: embedDeploymentDimensions
+    aiSearchIndexName: aiSearchIndexName
+    searchServiceEndpoint: searchServiceEndpoint
+    exists: apiAppExists
+  }
+}
+
+
 module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
   name: 'user-role-acr-push'
   scope: rg
@@ -271,7 +314,7 @@ module userRoleSecretsReader 'core/security/role.bicep' = if (!empty(principalId
 
 module userRoleAzureAIDeveloper 'core/security/role.bicep' = if (!empty(principalId)) {
   name: 'user-role-azureai-developer'
- scope: rg
+  scope: rg
   params: {
     principalId: principalId
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
@@ -340,46 +383,6 @@ module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSe
   }
 }
 
-//Container apps host and api
-// Container apps host (including container registry)
-module containerApps 'core/host/container-apps.bicep' = {
-  name: 'container-apps'
-  scope: rg
-  params: {
-    name: 'app'
-    location: location
-    tags: tags
-    containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
-    containerRegistryName: empty(aiExistingProjectConnectionString)
-      ? ai.outputs.containerRegistryName
-      : containerRegistryResolvedName
-    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
-      ? ai.outputs.logAnalyticsWorkspaceName
-      : logAnalytics.outputs.name
-  }
-}
-
-
-// API app
-module api 'api.bicep' = {
-  name: 'api'
-  scope: rg
-  params: {
-    name: 'ca-api-${resourceToken}'
-    location: location
-    tags: tags
-    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
-    containerAppsEnvironmentName: containerApps.outputs.environmentName
-    containerRegistryName: containerApps.outputs.registryName
-    projectConnectionString: projectConnectionString
-    chatDeploymentName: chatDeploymentName
-    embedDeploymentName: embedDeploymentName
-    embedDeploymentDimensions: embedDeploymentDimensions
-    aiSearchIndexName: aiSearchIndexName
-    searchServiceEndpoint: searchServiceEndpoint
-    exists: apiAppExists
-  }
-}
 
 output AZURE_RESOURCE_GROUP string = rg.name
 
