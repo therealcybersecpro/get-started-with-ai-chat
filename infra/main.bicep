@@ -271,7 +271,7 @@ module userRoleSecretsReader 'core/security/role.bicep' = if (!empty(principalId
 
 module userRoleAzureAIDeveloper 'core/security/role.bicep' = if (!empty(principalId)) {
   name: 'user-role-azureai-developer'
-  scope: rg
+ scope: rg
   params: {
     principalId: principalId
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
@@ -313,27 +313,27 @@ module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bice
   }
 }
 
-module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-index-data-contributor-rg'
-  scope: existingProjectRG
+  scope: rg
   params: {
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
 }
 
-module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-index-data-reader-rg'
-  scope: existingProjectRG
+  scope: rg
   params: {
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   }
 }
 
-module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(aiExistingProjectConnectionString)) {
+module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-search-service-contributor-rg'
-  scope: existingProjectRG
+  scope: rg
   params: {
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
