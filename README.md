@@ -96,13 +96,20 @@ await rag.build_embeddings_file(
     output_file='data/embeddings.csv'
 )
 ```
-For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To run the application locally with RAG model, please provide the next environmet variables:
+For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To deploy the application with RAG model, please provide the next environmet variables:
 ```
 USE_SEARCH_SERVICE=true
 AZURE_AI_SEARCH_INDEX_NAME=index_sample
 AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 ```
 If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used. 
+In this application we are creating index, called `index_sample` in Azure Search Service. The index can be created by following [instructions](https://learn.microsoft.com/azure/ai-services/agents/how-to/tools/azure-ai-search?tabs=azurecli%2Cpython&pivots=overview-azure-ai-search), or by calling the next code:
+```python
+rag.create_index_maybe(vector_index_dimensions)
+rag.upload_documents(embeddings_path)
+```
+In this case `vector_index_dimensions` needs to be provided only if `dimensions` were not set during `RAGHelper` object creation. If the index will be present before the aplication deployment, application will skip document upload and will use the existing index.
+
 
 #### Local Development Server
 
