@@ -64,7 +64,7 @@ param keyVaultName string = ''
 param searchServiceName string = ''
 @description('The Azure Search connection name. If ommited will use a default value')
 param searchConnectionName string = ''
-@description('The search inex name')
+@description('The search index name')
 param aiSearchIndexName string = ''
 @description('The Azure Storage Account resource name. If ommited will be generated')
 param storageAccountName string = ''

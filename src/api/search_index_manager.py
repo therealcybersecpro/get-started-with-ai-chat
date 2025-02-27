@@ -21,9 +21,9 @@ from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
 from .routes import ChatRequest
 
 
-class RAGHelper:
+class SearchIndexManager:
     """
-    The singletone class for searching of context for user queries.
+    The class for searching of context for user queries.
 
     :param endpoint: The search endpoint to be used.
     :param credential: The credential to be used for the search.
@@ -146,9 +146,9 @@ class RAGHelper:
         if self._dimensions is not None and vector_index_dimensions != self._dimensions:
             raise ValueError("vector_index_dimensions is different from dimensions provided to constructor.")
 
-    async def create_index_maybe(self, vector_index_dimensions: Optional[int] = None) -> None:
+    async def ensure_index_created(self, vector_index_dimensions: Optional[int] = None) -> None:
         """
-        Create the index if it does not exist.
+        Get the search index. Create the index if it does not exist.
 
         :param vector_index_dimensions: The number of dimensions in the vector index. This parameter is
                needed if the embedding parameter cannot be set for the given model. It can be
@@ -162,7 +162,7 @@ class RAGHelper:
         """
         self._check_dimensions(vector_index_dimensions)
         if self._index is None:
-            self._index = await RAGHelper.get_or_create_search_index(
+            self._index = await SearchIndexManager.get_or_create_search_index(
                 self._endpoint,
                 self._credential,
                 self._index_name,
@@ -214,7 +214,7 @@ class RAGHelper:
             except ResourceNotFoundError:
                 pass
         if index is None:
-            index = await RAGHelper._index_create(
+            index = await SearchIndexManager._index_create(
                 endpoint=endpoint,
                 credential=credential,
                 index_name=index_name,
@@ -222,7 +222,7 @@ class RAGHelper:
             )
         return index
 
-    async def create_index_or_false(
+    async def create_index(
         self,
         vector_index_dimensions: Optional[int] = None) -> bool:
         """
@@ -235,13 +235,13 @@ class RAGHelper:
                the length of the list obtained.
                Also please see the embedding model documentation
                https://platform.openai.com/docs/models#embeddings
-        :return: True if index was created, False oterwise.
+        :return: True if index was created, False otherwise.
         :raises: Value error if both dimensions of embedding model and vector_index_dimensions are not set
-                 or both of them set and they do not equal each other.
+                 or both of them are set and they do not equal each other.
         """
         self._check_dimensions(vector_index_dimensions)
         try:
-            self._index = await RAGHelper._index_create(
+            self._index = await SearchIndexManager._index_create(
                 endpoint=self._endpoint,
                 credential=self._credential,
                 index_name=self._index_name,
@@ -293,11 +293,11 @@ class RAGHelper:
         method. We also do not include nltk into requirements because this method is only used
         during rag generation.
         :param dimensions: The number of dimensions in the embeddings. Must be the same as
-               the one used for RAGHelper creation.
+               the one used for SearchIndexManager creation.
         :param input_directory: The directory with the embedding files.
         :param output_file: The file csv file to store embeddings.
         :param embeddings_client: The embedding client, used to create embeddings. 
-                Must be the same as the one used for RAGHelper creation.
+                Must be the same as the one used for SearchIndexManager creation.
         :param model: The embedding model to be used.
         """
         import nltk

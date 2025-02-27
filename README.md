@@ -96,7 +96,7 @@ await rag.build_embeddings_file(
     output_file='data/embeddings.csv'
 )
 ```
-For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To deploy the application with RAG model, please provide the next environmet variables:
+For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To deploy the application with RAG model, please provide the next environment variables:
 ```
 USE_SEARCH_SERVICE=true
 AZURE_AI_SEARCH_INDEX_NAME=index_sample
