@@ -34,7 +34,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         super(TestSearchIndexManager, cls).setUpClass()
 
     def setUp(self)->None:
-        self.search_endpoint = "https://nirovins-westus-search.search.windows.net"
+        self.search_endpoint = os.environ["SEARCH_ENDPOINT"]
         self.index_name = "test_index"
         unittest.TestCase.setUp(self)
 
