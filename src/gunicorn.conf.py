@@ -1,10 +1,12 @@
 # Copyright (c) Microsoft. All rights reserved.
-# Licensed under the MIT license. See LICENSE.md file in the project root for full license information.
+# Licensed under the MIT license.
+# See LICENSE file in the project root for full license information.
 import asyncio
 import multiprocessing
 import os
 
 from azure.identity.aio import DefaultAzureCredential
+
 
 async def create_index_maybe():
     """
@@ -13,7 +15,7 @@ async def create_index_maybe():
     This code is executed only once, when called on_starting hook is being
     called. This code ensures that the index is being populated only once.
     rag.create_index return True if the index was created, meaning that this
-    docker node have started first and must populate index. 
+    docker node have started first and must populate index.
     """
     from api.search_index_manager import SearchIndexManager
     async with DefaultAzureCredential() as creds:
@@ -32,9 +34,11 @@ async def create_index_maybe():
             if await search_mgr.create_index(
               vector_index_dimensions=int(
                   os.getenv('AZURE_AI_EMBED_DIMENSIONS'))):
-                embeddings_path = os.path.join(os.path.dirname(__file__), 'api', 'data', 'embeddings.csv')
+                embeddings_path = os.path.join(
+                    os.path.dirname(__file__), 'api', 'data', 'embeddings.csv')
                 assert embeddings_path, f'File {embeddings_path} not found.'
-                await rag.upload_documents(embeddings_path)
+                await search_mgr.upload_documents(embeddings_path)
+                await search_mgr.close()
 
 
 def on_starting(server):

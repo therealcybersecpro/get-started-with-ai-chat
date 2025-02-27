@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft. All rights reserved.
-# Licensed under the MIT license. See LICENSE.md file in the project root for full license information.
+# Licensed under the MIT license.
+# See LICENSE file in the project root for full license information.
 import contextlib
 import logging
 import os
@@ -115,6 +116,8 @@ async def lifespan(app: fastapi.FastAPI):
 
     await project.close()
     await chat.close()
+    if rag is not None:
+        await rag.close()
 
 
 def create_app():

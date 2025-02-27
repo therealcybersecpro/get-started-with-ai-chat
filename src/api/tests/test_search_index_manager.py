@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft. All rights reserved.
-# Licensed under the MIT license. See LICENSE.md file in the project root for full license information.
+# Licensed under the MIT license.
+# See LICENSE file in the project root for full license information.
 import os
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
@@ -124,8 +125,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
         mock_serch_client = AsyncMock()
-        mock_search_aenter = AsyncMock()
-        mock_search_aenter.search.return_value = MockAsyncIterator([
+        mock_serch_client.search.return_value = MockAsyncIterator([
             {'token': 'a'},
             {'token': 'b'}
         ])
@@ -136,18 +136,17 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             with patch('search_index_manager.SearchClient', return_value=mock_serch_client):
                 mock_ix_client.__aenter__.return_value = mock_aenter
-                mock_serch_client.__aenter__.return_value = mock_search_aenter
                 rag = self._get_mock_rag(mock_embedding)
                 await rag.ensure_index_created()
                 
                 # Upload documents.
                 await rag.upload_documents(TestSearchIndexManager.EMBEDDINGS_FILE)
-                mock_search_aenter.upload_documents.assert_called_once()
+                mock_serch_client.upload_documents.assert_called_once()
 
                 message = ChatRequest(messages=[Message(content='test')])
                 search_result = await rag.search(message)
                 mock_embedding.embed.assert_called_once()
-                mock_search_aenter.search.assert_called_once()
+                mock_serch_client.search.assert_called_once()
                 self.assertEqual(search_result, "a\n------\nb")
 
     async def test_is_empty_mock(self):
@@ -155,18 +154,16 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
         mock_serch_client = AsyncMock()
-        mock_search_aenter = AsyncMock()
         
         with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             with patch('search_index_manager.SearchClient', return_value=mock_serch_client):
                 mock_ix_client.__aenter__.return_value = mock_aenter
-                mock_serch_client.__aenter__.return_value = mock_search_aenter
-                mock_search_aenter.get_document_count.return_value = 42
+                mock_serch_client.get_document_count.return_value = 42
                 rag = self._get_mock_rag(AsyncMock())
                 await rag.ensure_index_created()
                 is_empty = await rag.is_index_empty()
                 self.assertFalse(is_empty)
-                mock_search_aenter.get_document_count.return_value = 0
+                mock_serch_client.get_document_count.return_value = 0
                 is_empty = await rag.is_index_empty()
                 self.assertTrue(is_empty)
 
@@ -224,6 +221,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
                         )
                     )
                     await rag.delete_index()
+                    await rag.close()
                     self.assertTrue(bool(result))
                 
 

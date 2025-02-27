@@ -52,6 +52,14 @@ class SearchIndexManager:
         self._credential = credential
         self._index = None
         self._model = model
+        self._client = None
+
+    def _get_client(self):
+        """Get search client if it is absent."""
+        if self._client is None:
+            self._client = SearchClient(
+                endpoint=self._endpoint, index_name=self._index.name, credential=self._credential)
+        return self._client
 
     async def search(self, message: ChatRequest) -> str:
         """
@@ -67,12 +75,11 @@ class SearchIndexManager:
             model=self._model
         ))['data'][0]['embedding']
         vector_query = VectorizedQuery(vector=embedded_question, k_nearest_neighbors=5, fields="embedding")
-        async with SearchClient(endpoint=self._endpoint, index_name=self._index.name, credential=self._credential) as search_client:
-            response = await search_client.search(
-                vector_queries=[vector_query],
-                select=['token'],
-            )
-            results = [result['token'] async for result in response]
+        response = await self._get_client().search(
+            vector_queries=[vector_query],
+            select=['token'],
+        )
+        results = [result['token'] async for result in response]
         return "\n------\n".join(results)
     
     async def upload_documents(self, embeddings_file: str) -> None:
@@ -95,8 +102,7 @@ class SearchIndexManager:
                     }
                 )
                 index += 1
-        async with SearchClient(endpoint=self._endpoint, index_name=self._index.name, credential=self._credential) as search_client:
-            await search_client.upload_documents(documents)
+        await self._get_client().upload_documents(documents)
 
     async def is_index_empty(self) -> bool:
         """
@@ -108,8 +114,7 @@ class SearchIndexManager:
             raise ValueError(
                 "Unable to perform the operation as the index is absent. "
                 "To create index please call create_index")
-        async with SearchClient(endpoint=self._endpoint, index_name=self._index.name, credential=self._credential) as search_client:
-            document_count = await search_client.get_document_count()
+        document_count = await self._get_client().get_document_count()
         return document_count == 0
 
     def _raise_if_no_index(self) -> None:
@@ -130,10 +135,11 @@ class SearchIndexManager:
             await ix_client.delete_index(self._index.name)
         self._index = None
 
-    def _check_dimensions(self, vector_index_dimensions: Optional[int] = None) -> None:
+    def _check_dimensions(self, vector_index_dimensions: Optional[int] = None) -> int:
         """
         Check that the dimensions are set correctly.
 
+        :return: the correct vector index dimensions.
         :raises: Value error if both dimensions of embedding model and vector_index_dimensions are not set
                  or both of them set and they do not equal each other.
         """
@@ -145,6 +151,7 @@ class SearchIndexManager:
             vector_index_dimensions = self._dimensions
         if self._dimensions is not None and vector_index_dimensions != self._dimensions:
             raise ValueError("vector_index_dimensions is different from dimensions provided to constructor.")
+        return vector_index_dimensions
 
     async def ensure_index_created(self, vector_index_dimensions: Optional[int] = None) -> None:
         """
@@ -160,7 +167,7 @@ class SearchIndexManager:
         :raises: Value error if both dimensions of embedding model and vector_index_dimensions are not set
                  or both of them set and they do not equal each other.
         """
-        self._check_dimensions(vector_index_dimensions)
+        vector_index_dimensions = self._check_dimensions(vector_index_dimensions)
         if self._index is None:
             self._index = await SearchIndexManager.get_or_create_search_index(
                 self._endpoint,
@@ -239,7 +246,7 @@ class SearchIndexManager:
         :raises: Value error if both dimensions of embedding model and vector_index_dimensions are not set
                  or both of them are set and they do not equal each other.
         """
-        self._check_dimensions(vector_index_dimensions)
+        vector_index_dimensions = self._check_dimensions(vector_index_dimensions)
         try:
             self._index = await SearchIndexManager._index_create(
                 endpoint=self._endpoint,
@@ -326,3 +333,8 @@ class SearchIndexManager:
                 ))["data"]
                 for token, float_data in zip(sentence_tokens, emedding):
                     writer.writerow({'token': token, 'embedding': json.dumps(float_data['embedding'])})
+
+    async def close(self):
+        """Close the closeable resources, associated with SearchIndexManager."""
+        if self._client:
+            await self._client.close()
