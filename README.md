@@ -81,9 +81,9 @@ ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 #### RAG model
 The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. To train the model with different data set, or different model, please run the script:
 ```python
-from .api.rag_helper import RAGHelper
+from .api.search_index_manager import SearchIndexManager
 
-rag = RAGHelper(
+rag = SearchIndexManager (
     endpoint=self.search_endpoint,
     credential=your_credentials,
     index_name=index_name,
@@ -105,10 +105,10 @@ AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used. 
 In this application we are creating index, called `index_sample` in Azure Search Service. The index can be created by following [instructions](https://learn.microsoft.com/azure/ai-services/agents/how-to/tools/azure-ai-search?tabs=azurecli%2Cpython&pivots=overview-azure-ai-search), or by calling the next code:
 ```python
-rag.create_index_maybe(vector_index_dimensions)
+rag.ensure_index_created(vector_index_dimensions)
 rag.upload_documents(embeddings_path)
 ```
-In this case `vector_index_dimensions` needs to be provided only if `dimensions` were not set during `RAGHelper` object creation. If the index will be present before the aplication deployment, application will skip document upload and will use the existing index.
+In this case `vector_index_dimensions` needs to be provided only if `dimensions` were not set during `SearchIndexManager` object creation. If the index will be present before the aplication deployment, application will skip document upload and will use the existing index.
 
 
 #### Local Development Server
