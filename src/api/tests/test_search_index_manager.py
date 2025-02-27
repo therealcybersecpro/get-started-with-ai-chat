@@ -25,7 +25,7 @@ class MockAsyncIterator:
 class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
     """Tests for the RAG helper."""
 
-    INPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'data')
+    INPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
     EMBEDDINGS_FILE = os.path.join(INPUT_DIR, 'embeddings.csv')
     
     @classmethod
@@ -41,7 +41,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         """Test index exists check."""
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             exists = await SearchIndexManager.index_exists(self.search_endpoint, AsyncMock(), self.index_name)
             self.assertTrue(exists)
@@ -54,7 +54,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         """Test index_name creation."""
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             mock_aenter.get_index.side_effect = ResourceNotFoundError("Mock")
             await SearchIndexManager.get_or_create_search_index(
@@ -78,7 +78,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
     async def test_create_index_or_false_mock(self):
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             rag = self._get_mock_rag(AsyncMock())
             result = await rag.create_index(100)
@@ -106,7 +106,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         """Test that if index is deleteed the appropriate error is raised."""
         mock_ix_client = AsyncMock()
         mock_aenter = AsyncMock()
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             rag = self._get_mock_rag(AsyncMock())
             await rag.ensure_index_created()
@@ -133,8 +133,8 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         mock_embedding.embed.return_value = {
             'data': [{'embedding': 42.}]
         }
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
-            with patch('rag_helper.SearchClient', return_value=mock_serch_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
+            with patch('search_index_manager.SearchClient', return_value=mock_serch_client):
                 mock_ix_client.__aenter__.return_value = mock_aenter
                 mock_serch_client.__aenter__.return_value = mock_search_aenter
                 rag = self._get_mock_rag(mock_embedding)
@@ -157,8 +157,8 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         mock_serch_client = AsyncMock()
         mock_search_aenter = AsyncMock()
         
-        with patch('rag_helper.SearchIndexClient', return_value=mock_ix_client):
-            with patch('rag_helper.SearchClient', return_value=mock_serch_client):
+        with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
+            with patch('search_index_manager.SearchClient', return_value=mock_serch_client):
                 mock_ix_client.__aenter__.return_value = mock_aenter
                 mock_serch_client.__aenter__.return_value = mock_search_aenter
                 mock_search_aenter.get_document_count.return_value = 42
