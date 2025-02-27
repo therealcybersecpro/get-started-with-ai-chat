@@ -164,7 +164,7 @@ You can optionally use a local development server to test app changes locally. M
 2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
 or [customize the models](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now.
 
-3. Provision and deploy all the resources:
+3. Provision and deploy all the resources by running the following in azureai-basic-python directory:
 
     ```shell
     azd up
