@@ -58,7 +58,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             mock_aenter.get_index.side_effect = ResourceNotFoundError("Mock")
-            await SearchIndexManager.(
+            await SearchIndexManager.get_or_create_index(
                 endpoint=self.search_endpoint,
                 credential=AsyncMock(),
                 index_name=self.index_name,
