@@ -169,7 +169,7 @@ class SearchIndexManager:
         """
         vector_index_dimensions = self._check_dimensions(vector_index_dimensions)
         if self._index is None:
-            self._index = await SearchIndexManager.get_or_create_search_index(
+            self._index = await SearchIndexManager.get_or_create_index(
                 self._endpoint,
                 self._credential,
                 self._index_name,
@@ -198,7 +198,7 @@ class SearchIndexManager:
         return exists
 
     @staticmethod
-    async def get_or_create_search_index(
+    async def get_or_create_index(
             endpoint: str,
             credential: AsyncTokenCredential,
             index_name: str,

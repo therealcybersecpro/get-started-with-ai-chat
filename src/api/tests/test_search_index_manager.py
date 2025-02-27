@@ -58,7 +58,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         with patch('search_index_manager.SearchIndexClient', return_value=mock_ix_client):
             mock_ix_client.__aenter__.return_value = mock_aenter
             mock_aenter.get_index.side_effect = ResourceNotFoundError("Mock")
-            await SearchIndexManager.get_or_create_search_index(
+            await SearchIndexManager.(
                 endpoint=self.search_endpoint,
                 credential=AsyncMock(),
                 index_name=self.index_name,
@@ -68,7 +68,7 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
             mock_aenter.get_index.assert_called_once()
             mock_aenter.get_index.reset_mock()
             mock_aenter.get_index.side_effect = Mock()
-            await SearchIndexManager.get_or_create_search_index(
+            await SearchIndexManager.get_or_create_index(
                 endpoint=self.search_endpoint,
                 credential=AsyncMock(),
                 index_name=self.index_name,
@@ -253,12 +253,12 @@ class TestSearchIndexManager(unittest.IsolatedAsyncioTestCase):
         """Test index_name creation."""
         async with DefaultAzureCredential() as cred:
             #/with patch('SearchIndexManager._get_search_index_client') as mock_ix_client:
-            await SearchIndexManager.get_or_create_search_index(
+            await SearchIndexManager.get_or_create_index(
                 endpoint=self.search_endpoint,
                 credential=cred,
                 index_name=self.index_name,
                 dimensions=100)
-            await SearchIndexManager.get_or_create_search_index(
+            await SearchIndexManager.get_or_create_index(
                 endpoint=self.search_endpoint,
                 credential=cred,
                 index_name=self.index_name,
