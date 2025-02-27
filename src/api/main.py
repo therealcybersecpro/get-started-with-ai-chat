@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license.
+# See LICENSE file in the project root for full license information.
 import contextlib
 import logging
 import os
@@ -12,6 +15,7 @@ from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 
 from .shared import globals
+from .search_index_manager import SearchIndexManager
 
 logger = logging.getLogger("azureaiapp")
 logger.setLevel(logging.INFO)
@@ -79,15 +83,41 @@ async def lifespan(app: fastapi.FastAPI):
 
     chat = await project.inference.get_chat_completions_client()
     prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
+    embed = await project.inference.get_embeddings_client()
+
+    endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
+    rag = None
+    embed_dimensions = None
+    if os.getenv('AZURE_AI_EMBED_DIMENSIONS'):
+        embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
+        
+    if endpoint and os.getenv('AZURE_AI_SEARCH_INDEX_NAME') and os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'):
+        rag = SearchIndexManager(
+            endpoint = endpoint,
+            credential = azure_credential,
+            index_name = os.getenv('AZURE_AI_SEARCH_INDEX_NAME'),
+            dimensions = embed_dimensions,
+            model = os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'),
+            embeddings_client=embed
+        )
+        # Create index and upload the documents only if index does not exist.
+        logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
+        await rag.ensure_index_created(vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
 
     globals["project"] = project
     globals["chat"] = chat
-    globals["prompt"] = prompt
+    globals["embed"] = embed
+    globals["rag"] = rag
+    globals["rag_prompt"] = prompt
+    globals["prompt"] = PromptTemplate.from_string('You are a helpful assistant')
     globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
+    globals["embed_model"] = os.environ.get("AZURE_AI_EMBED_DEPLOYMENT_NAME")
     yield
 
     await project.close()
     await chat.close()
+    if rag is not None:
+        await rag.close()
 
 
 def create_app():

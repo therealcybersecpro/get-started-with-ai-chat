@@ -7,4 +7,5 @@ azure-ai-inference[prompts]
 azure-ai-projects
 azure-core-tracing-opentelemetry
 azure-monitor-opentelemetry
+azure-search-documents
 opentelemetry-sdk

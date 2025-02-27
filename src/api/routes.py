@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license.
+# See LICENSE file in the project root for full license information.
 import json
 
 import fastapi
@@ -22,7 +25,7 @@ class ChatRequest(pydantic.BaseModel):
 
 
 @router.get("/", response_class=HTMLResponse)
-async def index(request: Request):
+async def index_name(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
@@ -37,7 +40,14 @@ async def chat_stream_handler(
     async def response_stream():
         messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
         model_deployment_name = globals["chat_model"]
+        
         prompt_messages = globals["prompt"].create_messages()
+        # Use RAG model, only if we were provided index and we have found a context there.
+        if globals["rag"] is not None:
+            context = await globals["rag"].search(chat_request)
+            if context:
+                prompt_messages = globals["rag_prompt"].create_messages(data=dict(context=context))
+            
         chat_coroutine = await chat_client.complete(
             model=model_deployment_name, messages=prompt_messages + messages, stream=True
         )
