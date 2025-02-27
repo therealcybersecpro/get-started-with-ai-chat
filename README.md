@@ -79,7 +79,7 @@ ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
 #### Retrieval-Augmented Generation model
-Retrieval-Augmented Generation (RAG) technology is based on use of similarity search to find the appropriate context for the question asked by user. This feature is optional, and it is turned on by default. Please set `USE_SEARCH_SERVICE` environment variable to `false` to turn if off, in this case the Azure AI Search resource will not be created. If the RAG feature is on, we perform the vector search to find the context, and if it is not found, the naive response ftom the LLM model is being returned.
+Retrieval-Augmented Generation (RAG) technology is based on use of similarity search to find the appropriate context for the question asked by user. This feature is optional, and it is turned on by default. Please set `USE_SEARCH_SERVICE` environment variable to `false` to turn if off, in this case the Azure AI Search resource will not be created. If the RAG feature is on, we perform the vector search to find the context, and if it is not found, the naive response from the LLM model is being returned.
 The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. To train the model with different data set, or different model, please run the script:
 ```python
 from .api.search_index_manager import SearchIndexManager
