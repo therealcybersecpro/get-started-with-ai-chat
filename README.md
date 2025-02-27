@@ -30,18 +30,6 @@ Make sure the following tools are installed:
 2. [Python 3.9+](https://www.python.org/downloads/)
 3. [Git](https://git-scm.com/downloads)
 
-#### Bringing an existing AI project resource
-
-This step applies if you have an existing AI project resource, and you want to bring it into the solution. You can do that by setting the following environment variable:
-
-```shell
-azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
-```
-
-You can find the connection string on the overview page of your Azure AI project.
-
-This solution has been configured to use "gpt-4o-mini" model. If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
-
 ## Development
 
 #### Code
