@@ -104,9 +104,9 @@ param embedModelFormat string
 @description('Name of the embedding model to deploy')
 param embedModelName string
 @description('Name of the embedding model deployment')
-param embedDeploymentName string
+param embeddingDeploymentName string
 @description('Embedding model dimensionality')
-param embedDeploymentDimensions string
+param embeddingDeploymentDimensions string
 
 @description('Version of the embedding model to deploy')
 // See version availability in this table:
@@ -146,7 +146,7 @@ var aiDeployments = [
     }
   }
   {
-    name: embedDeploymentName
+    name: embeddingDeploymentName
     model: {
       format: embedModelFormat
       name: embedModelName
@@ -267,8 +267,8 @@ module api 'api.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     projectConnectionString: projectConnectionString
     chatDeploymentName: chatDeploymentName
-    embedDeploymentName: embedDeploymentName
-    embedDeploymentDimensions: embedDeploymentDimensions
+    embeddingDeploymentName: embeddingDeploymentName
+    embeddingDeploymentDimensions: embeddingDeploymentDimensions
     aiSearchIndexName: aiSearchIndexName
     searchServiceEndpoint: searchServiceEndpoint
     exists: apiAppExists
@@ -390,10 +390,10 @@ output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
 output AZURE_AI_CHAT_DEPLOYMENT_NAME string = chatDeploymentName
-output AZURE_AI_EMBED_DEPLOYMENT_NAME string = embedDeploymentName
+output AZURE_AI_EMBED_DEPLOYMENT_NAME string = embeddingDeploymentName
 output AZURE_AI_SEARCH_INDEX_NAME string = aiSearchIndexName
 output AZURE_AI_SEARCH_ENDPOINT string = searchServiceEndpoint
-output AZURE_AI_EMBED_DIMENSIONS string = embedDeploymentDimensions
+output AZURE_AI_EMBED_DIMENSIONS string = embeddingDeploymentDimensions
 
 // Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName

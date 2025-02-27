@@ -68,7 +68,7 @@
     "chatDeploymentCapacity": {
       "value": "${AZURE_AI_CHAT_DEPLOYMENT_CAPACITY=30}"
     },
-    "embedDeploymentName": {
+    "embeddingDeploymentName": {
       "value": "${AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small}"
     },
     "embedModelFormat": {
@@ -86,7 +86,7 @@
     "embedDeploymentCapacity": {
       "value": "${AZURE_AI_EMBED_DEPLOYMENT_CAPACITY=30}"
     },
-    "embedDeploymentDimensions": {
+    "embeddingDeploymentDimensions": {
       "value": "${AZURE_AI_EMBED_DIMENSIONS=100}"
     },
     "apiAppExists": {

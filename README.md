@@ -78,12 +78,13 @@ To enable message contents to be included in the traces, set the following envir
 ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
-#### RAG model
+#### Retrieval-Augmented Generation model
+Retrieval-Augmented Generation (RAG) technology is based on use of similarity search to find the appropriate context for the question asked by user. This feature is optional, and it is turned on by default. Please set `USE_SEARCH_SERVICE` environment variable to `false` to turn if off, in this case the Azure AI Search resource will not be created. If the RAG feature is on, we perform the vector search to find the context, and if it is not found, the naive response ftom the LLM model is being returned.
 The source code comes with the data set about hiking products as an example. This data set was split by sentences, which were used to build embeddings using OpenAI `text-embedding-3-small` model with `dimensions` parameter equals to 100, resulting in `embeddings.csv` file, located in folder `api/data`. To train the model with different data set, or different model, please run the script:
 ```python
 from .api.search_index_manager import SearchIndexManager
 
-rag = SearchIndexManager (
+search_index_manager = SearchIndexManager (
     endpoint=self.search_endpoint,
     credential=your_credentials,
     index_name=index_name,
@@ -91,7 +92,7 @@ rag = SearchIndexManager (
     model="text-embedding-3-small",
     embeddings_client=embedding_client,
 )
-await rag.build_embeddings_file(
+await search_index_manager.build_embeddings_file(
     input_directory='data',
     output_file='data/embeddings.csv'
 )
@@ -105,8 +106,8 @@ AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 If these variables, except `USE_SEARCH_SERVICE`, which is `true` by default, were not set, or there is no Azure AI Search connection, RAG search will not be used. 
 In this application we are creating index, called `index_sample` in Azure Search Service. The index can be created by following [instructions](https://learn.microsoft.com/azure/ai-services/agents/how-to/tools/azure-ai-search?tabs=azurecli%2Cpython&pivots=overview-azure-ai-search), or by calling the next code:
 ```python
-rag.ensure_index_created(vector_index_dimensions)
-rag.upload_documents(embeddings_path)
+search_index_manager.ensure_index_created(vector_index_dimensions)
+search_index_manager.upload_documents(embeddings_path)
 ```
 In this case `vector_index_dimensions` needs to be provided only if `dimensions` were not set during `SearchIndexManager` object creation. If the index will be present before the aplication deployment, application will skip document upload and will use the existing index.
 
