@@ -83,8 +83,10 @@ search_index_manager = SearchIndexManager (
 await search_index_manager.build_embeddings_file(
     input_directory='data',
     output_file='data/embeddings.csv'
+    sentence_per_embedding=4
 )
 ```
+Please also note the parameter `sentence_per_embedding`, which is the numer of sentences, used to build the embedding. The bigger is this number - the bigger will be the context found by similarity search.
 For each question asked from the application, we first search the answer in vector store and if the answer was found, we return the response based on data provided in the data set. To deploy the application with RAG model, please provide the next environment variables:
 ```
 USE_SEARCH_SERVICE=true

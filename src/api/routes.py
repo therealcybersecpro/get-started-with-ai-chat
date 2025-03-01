@@ -2,6 +2,8 @@
 # Licensed under the MIT license.
 # See LICENSE file in the project root for full license information.
 import json
+import logging
+import os
 
 import fastapi
 import pydantic
@@ -10,6 +12,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from .shared import globals
+from .util import get_logger
+
+logger = get_logger(
+    name="azureaiapp",
+    log_level=logging.INFO,
+    log_file_name = os.getenv("APP_LOG_FILE"),
+    log_to_console=True
+)
 
 router = fastapi.APIRouter()
 templates = Jinja2Templates(directory="api/templates")
@@ -46,7 +56,13 @@ async def chat_stream_handler(
         if globals["rag"] is not None:
             context = await globals["rag"].search(chat_request)
             if context:
+                # Clean up the context to avoid non unicode characters.
+                context = context.encode("ascii", "ignore").decode("utf-8")
                 prompt_messages = globals["rag_prompt"].create_messages(data=dict(context=context))
+                # Remove this line.
+                logger.info(f"{context=}")
+            else:
+                logger.info("Unable to find the relevant information in the index for the request.")
             
         chat_coroutine = await chat_client.complete(
             model=model_deployment_name, messages=prompt_messages + messages, stream=True

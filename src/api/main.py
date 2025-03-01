@@ -16,18 +16,14 @@ from fastapi.staticfiles import StaticFiles
 
 from .shared import globals
 from .search_index_manager import SearchIndexManager
+from .util import get_logger
 
-logger = logging.getLogger("azureaiapp")
-logger.setLevel(logging.INFO)
-
-# Configure logging to file, if log file name is provided
-log_file_name = os.getenv("APP_LOG_FILE", "")
-if log_file_name != "":
-    file_handler = logging.FileHandler(log_file_name)
-    file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+logger = get_logger(
+    name="azureaiapp",
+    log_level=logging.INFO,
+    log_file_name = os.getenv("APP_LOG_FILE"),
+    log_to_console=True
+)
 
 enable_trace_string = os.getenv("ENABLE_AZURE_MONITOR_TRACING", "")
 enable_trace = False
@@ -103,6 +99,8 @@ async def lifespan(app: fastapi.FastAPI):
         # Create index and upload the documents only if index does not exist.
         logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
         await rag.ensure_index_created(vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
+    else:
+        logger.info("The RAG search will not be used.")
 
     globals["project"] = project
     globals["chat"] = chat
