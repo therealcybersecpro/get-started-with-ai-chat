@@ -4,7 +4,6 @@
 import contextlib
 import logging
 import os
-import pathlib
 from typing import Union
 
 import fastapi
@@ -13,7 +12,6 @@ from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredentia
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 
-from .shared import globals
 from .search_index_manager import SearchIndexManager
 from .util import get_logger
 
@@ -86,7 +84,7 @@ async def lifespan(app: fastapi.FastAPI):
         embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
         
     if endpoint and os.getenv('AZURE_AI_SEARCH_INDEX_NAME') and os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'):
-        rag = SearchIndexManager(
+        search_index_manager = SearchIndexManager(
             endpoint = endpoint,
             credential = azure_credential,
             index_name = os.getenv('AZURE_AI_SEARCH_INDEX_NAME'),
@@ -96,16 +94,14 @@ async def lifespan(app: fastapi.FastAPI):
         )
         # Create index and upload the documents only if index does not exist.
         logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-        await rag.ensure_index_created(vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
+        await search_index_manager.ensure_index_created(
+            vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
     else:
         logger.info("The RAG search will not be used.")
 
-    globals["project"] = project
-    globals["chat"] = chat
-    globals["embed"] = embed
-    globals["rag"] = rag
-    globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
-    globals["embed_model"] = os.environ.get("AZURE_AI_EMBED_DEPLOYMENT_NAME")
+    app.state.chat = chat
+    app.state.search_index_manager = search_index_manager
+    app.state.chat_model = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
     yield
 
     await project.close()

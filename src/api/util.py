@@ -4,6 +4,7 @@
 from typing import Optional
 
 import logging
+import pydantic
 import sys
 
 
@@ -38,3 +39,12 @@ def get_logger(name: str,
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
     return logger
+
+
+class Message(pydantic.BaseModel):
+    content: str
+    role: str = "user"
+
+
+class ChatRequest(pydantic.BaseModel):
+    messages: list[Message]

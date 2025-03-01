@@ -18,7 +18,7 @@ from azure.search.documents.indexes.models import (
     HnswAlgorithmConfiguration)
 from azure.ai.inference.aio import EmbeddingsClient
 from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
-from .routes import ChatRequest
+from .util import ChatRequest
 
 
 class SearchIndexManager:
