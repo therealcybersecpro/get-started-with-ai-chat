@@ -60,7 +60,7 @@ if not os.getenv("RUNNING_IN_PRODUCTION"):
 # https://docs.gunicorn.org/en/stable/settings.html
 preload_app = True
 num_cpus = multiprocessing.cpu_count()
-workers = (num_cpus * 2) + 1
+workers = 1 #(num_cpus * 2) + 1
 worker_class = "uvicorn.workers.UvicornWorker"
 
 timeout = 120

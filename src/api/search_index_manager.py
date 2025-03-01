@@ -35,6 +35,9 @@ class SearchIndexManager:
     :param embeddings_client: The embedding client.
     """
     
+    MIN_DIFF_CHARACTERS_IN_LINE = 5
+    MIN_LINE_LENGTH = 5
+    
     def __init__(
             self,
             endpoint: str,
@@ -322,7 +325,7 @@ class SearchIndexManager:
                 for line in f:
                     line = line.strip()
                     # Skip non informative lines.
-                    if len(line) < 5 or len(set(line)) < 5:
+                    if len(line) < SearchIndexManager.MIN_LINE_LENGTH or len(set(line)) < SearchIndexManager.MIN_DIFF_CHARACTERS_IN_LINE:
                         continue
                     for sentence in sent_tokenize(line):
                         if index % sentence_per_embedding == 0:

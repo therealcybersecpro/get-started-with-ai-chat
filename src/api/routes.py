@@ -10,6 +10,7 @@ import pydantic
 from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from azure.ai.inference.prompts import PromptTemplate
 
 from .shared import globals
 from .util import get_logger
@@ -51,16 +52,17 @@ async def chat_stream_handler(
         messages = [{"role": message.role, "content": message.content} for message in chat_request.messages]
         model_deployment_name = globals["chat_model"]
         
-        prompt_messages = globals["prompt"].create_messages()
+        prompt_messages = PromptTemplate.from_string('You are a helpful assistant').create_messages()
         # Use RAG model, only if we were provided index and we have found a context there.
         if globals["rag"] is not None:
             context = await globals["rag"].search(chat_request)
             if context:
-                # Clean up the context to avoid non unicode characters.
-                context = context.encode("ascii", "ignore").decode("utf-8")
-                prompt_messages = globals["rag_prompt"].create_messages(data=dict(context=context))
+                prompt_messages = PromptTemplate.from_string(
+                    'You are a helpful assistant that answers some questions '
+                    'with the help of some context data.\n\nHere is '
+                    'the context data:\n\n{{context}}').create_messages(data=dict(context=context))
                 # Remove this line.
-                logger.info(f"{context=}")
+                logger.info(f"{prompt_messages=}")
             else:
                 logger.info("Unable to find the relevant information in the index for the request.")
             
