@@ -329,7 +329,7 @@ class SearchIndexManager:
                         continue
                     for sentence in sent_tokenize(line):
                         if index % sentence_per_embedding == 0:
-                            sentence_per_embedding.append(sentence)
+                            sentence_tokens.append(sentence)
                         else:
                             sentence_tokens[-1] += ' '
                             sentence_tokens[-1] += sentence
