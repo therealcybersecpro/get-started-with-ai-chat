@@ -389,7 +389,7 @@ module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (use
   name: 'user-role-azure-index-data-contributor-rg'
   scope: rg
   params: {
-    principalId: aprincipalId
+    principalId: principalId
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
 }
