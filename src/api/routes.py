@@ -67,7 +67,6 @@ async def chat_stream_handler(
                     'You are a helpful assistant that answers some questions '
                     'with the help of some context data.\n\nHere is '
                     'the context data:\n\n{{context}}').create_messages(data=dict(context=context))
-                # Remove this line.
                 logger.info(f"{prompt_messages=}")
             else:
                 logger.info("Unable to find the relevant information in the index for the request.")

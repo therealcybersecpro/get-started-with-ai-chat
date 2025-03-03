@@ -295,7 +295,7 @@ class SearchIndexManager:
             self,
             input_directory: str,
             output_file: str,
-            sentence_per_embedding: int=4
+            sentences_per_embedding: int=4
             ) -> None:
         """
         In this method we do lazy loading of nltk and download the needed data set to split
@@ -309,7 +309,7 @@ class SearchIndexManager:
         :param output_file: The file csv file to store embeddings.
         :param embeddings_client: The embedding client, used to create embeddings. 
                 Must be the same as the one used for SearchIndexManager creation.
-        :param sentence_per_embedding: The number of sentences used to build embedding.
+        :param sentences_per_embedding: The number of sentences used to build embedding.
         :param model: The embedding model to be used.
         """
         import nltk
@@ -328,7 +328,7 @@ class SearchIndexManager:
                     if len(line) < SearchIndexManager.MIN_LINE_LENGTH or len(set(line)) < SearchIndexManager.MIN_DIFF_CHARACTERS_IN_LINE:
                         continue
                     for sentence in sent_tokenize(line):
-                        if index % sentence_per_embedding == 0:
+                        if index % sentences_per_embedding == 0:
                             sentence_tokens.append(sentence)
                         else:
                             sentence_tokens[-1] += ' '
