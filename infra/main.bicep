@@ -72,6 +72,8 @@ param storageAccountName string = ''
 param logAnalyticsWorkspaceName string = ''
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
+@description('Random seed to be used during generation of new resources suffixes.')
+param seed string = newGuid()
 
 // Chat completion model
 @description('Format of the chat model to deploy')
@@ -128,7 +130,7 @@ param useApplicationInsights bool = true
 param useSearchService bool = false
 
 var abbrs = loadJsonContent('./abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location, seed))
 var projectName = !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
 var tags = { 'azd-env-name': environmentName }
 

@@ -18,7 +18,7 @@ from azure.search.documents.indexes.models import (
     HnswAlgorithmConfiguration)
 from azure.ai.inference.aio import EmbeddingsClient
 from azure.core.exceptions import ResourceNotFoundError, HttpResponseError
-from .routes import ChatRequest
+from .util import ChatRequest
 
 
 class SearchIndexManager:
@@ -34,6 +34,9 @@ class SearchIndexManager:
                   must be the same as one use to build the file with embeddings.
     :param embeddings_client: The embedding client.
     """
+    
+    MIN_DIFF_CHARACTERS_IN_LINE = 5
+    MIN_LINE_LENGTH = 5
     
     def __init__(
             self,
@@ -291,7 +294,8 @@ class SearchIndexManager:
     async def build_embeddings_file(
             self,
             input_directory: str,
-            output_file: str
+            output_file: str,
+            sentences_per_embedding: int=4
             ) -> None:
         """
         In this method we do lazy loading of nltk and download the needed data set to split
@@ -305,6 +309,7 @@ class SearchIndexManager:
         :param output_file: The file csv file to store embeddings.
         :param embeddings_client: The embedding client, used to create embeddings. 
                 Must be the same as the one used for SearchIndexManager creation.
+        :param sentences_per_embedding: The number of sentences used to build embedding.
         :param model: The embedding model to be used.
         """
         import nltk
@@ -314,11 +319,22 @@ class SearchIndexManager:
         # Split the data to sentence tokens.
         sentence_tokens = []
         globs = glob.glob(input_directory + '/*.md', recursive=True)
+        index = 0
         for fle in globs:
             with open(fle) as f:
                 for line in f:
                     line = line.strip()
-                    sentence_tokens.extend(sent_tokenize(line))
+                    # Skip non informative lines.
+                    if len(line) < SearchIndexManager.MIN_LINE_LENGTH or len(set(line)) < SearchIndexManager.MIN_DIFF_CHARACTERS_IN_LINE:
+                        continue
+                    for sentence in sent_tokenize(line):
+                        if index % sentences_per_embedding == 0:
+                            sentence_tokens.append(sentence)
+                        else:
+                            sentence_tokens[-1] += ' '
+                            sentence_tokens[-1] += sentence
+                        index += 1
+        
         
         # For each token build the embedding, which will be used in the search.
         batch_size = 2000

@@ -4,30 +4,23 @@
 import contextlib
 import logging
 import os
-import pathlib
 from typing import Union
 
 import fastapi
 from azure.ai.projects.aio import AIProjectClient
-from azure.ai.inference.prompts import PromptTemplate
 from azure.identity import AzureDeveloperCliCredential, ManagedIdentityCredential
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 
-from .shared import globals
 from .search_index_manager import SearchIndexManager
+from .util import get_logger
 
-logger = logging.getLogger("azureaiapp")
-logger.setLevel(logging.INFO)
-
-# Configure logging to file, if log file name is provided
-log_file_name = os.getenv("APP_LOG_FILE", "")
-if log_file_name != "":
-    file_handler = logging.FileHandler(log_file_name)
-    file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+logger = get_logger(
+    name="azureaiapp",
+    log_level=logging.INFO,
+    log_file_name = os.getenv("APP_LOG_FILE"),
+    log_to_console=True
+)
 
 enable_trace_string = os.getenv("ENABLE_AZURE_MONITOR_TRACING", "")
 enable_trace = False
@@ -82,7 +75,6 @@ async def lifespan(app: fastapi.FastAPI):
             configure_azure_monitor(connection_string=application_insights_connection_string)
 
     chat = await project.inference.get_chat_completions_client()
-    prompt = PromptTemplate.from_prompty(pathlib.Path(__file__).parent.resolve() / "prompt.prompty")
     embed = await project.inference.get_embeddings_client()
 
     endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
@@ -92,7 +84,7 @@ async def lifespan(app: fastapi.FastAPI):
         embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
         
     if endpoint and os.getenv('AZURE_AI_SEARCH_INDEX_NAME') and os.getenv('AZURE_AI_EMBED_DEPLOYMENT_NAME'):
-        rag = SearchIndexManager(
+        search_index_manager = SearchIndexManager(
             endpoint = endpoint,
             credential = azure_credential,
             index_name = os.getenv('AZURE_AI_SEARCH_INDEX_NAME'),
@@ -102,16 +94,14 @@ async def lifespan(app: fastapi.FastAPI):
         )
         # Create index and upload the documents only if index does not exist.
         logger.info(f"Creating index {os.getenv('AZURE_AI_SEARCH_INDEX_NAME')}.")
-        await rag.ensure_index_created(vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
+        await search_index_manager.ensure_index_created(
+            vector_index_dimensions=embed_dimensions if embed_dimensions else 100)
+    else:
+        logger.info("The RAG search will not be used.")
 
-    globals["project"] = project
-    globals["chat"] = chat
-    globals["embed"] = embed
-    globals["rag"] = rag
-    globals["rag_prompt"] = prompt
-    globals["prompt"] = PromptTemplate.from_string('You are a helpful assistant')
-    globals["chat_model"] = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
-    globals["embed_model"] = os.environ.get("AZURE_AI_EMBED_DEPLOYMENT_NAME")
+    app.state.chat = chat
+    app.state.search_index_manager = search_index_manager
+    app.state.chat_model = os.environ["AZURE_AI_CHAT_DEPLOYMENT_NAME"]
     yield
 
     await project.close()
