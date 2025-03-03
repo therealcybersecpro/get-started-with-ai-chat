@@ -78,7 +78,7 @@ async def lifespan(app: fastapi.FastAPI):
     embed = await project.inference.get_embeddings_client()
 
     endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
-    rag = None
+    search_index_manager = None
     embed_dimensions = None
     if os.getenv('AZURE_AI_EMBED_DIMENSIONS'):
         embed_dimensions = int(os.getenv('AZURE_AI_EMBED_DIMENSIONS'))
