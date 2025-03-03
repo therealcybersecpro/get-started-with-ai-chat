@@ -164,7 +164,7 @@ You can view the App Insights tracing in Azure AI Foundry. Select your project o
 
 ## Development Options
 
-As an alternative to local development environment, the following development environment options can be used.
+In addition to the development setup documented above, the following development environment options can be used.
 
 <details>
   <summary><b>Local Development Server</b></summary>
