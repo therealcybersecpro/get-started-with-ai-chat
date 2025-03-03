@@ -5,3 +5,7 @@ azure-identity==1.19.0
 aiohttp==3.11.1
 azure-ai-inference[prompts]
 azure-ai-projects
+azure-core-tracing-opentelemetry
+azure-monitor-opentelemetry
+azure-search-documents
+opentelemetry-sdk
