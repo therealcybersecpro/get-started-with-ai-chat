@@ -358,7 +358,7 @@ module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bice
   }
 }
 
-module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService) {
+module backendRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-index-data-contributor-rg'
   scope: rg
   params: {
@@ -367,7 +367,7 @@ module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (use
   }
 }
 
-module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService) {
+module backendRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-index-data-reader-rg'
   scope: rg
   params: {
@@ -376,11 +376,38 @@ module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearc
   }
 }
 
-module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService) {
+module backendRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-search-service-contributor-rg'
   scope: rg
   params: {
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
+  }
+}
+
+module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+  name: 'user-role-azure-index-data-contributor-rg'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
+  }
+}
+
+module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+  name: 'user-role-azure-index-data-reader-rg'
+  scope: rg
+  params: {
+    principalId: principalId
+    roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
+  }
+}
+
+module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+  name: 'user-role-azure-search-service-contributor-rg'
+  scope: rg
+  params: {
+    principalId: principalId
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
   }
 }
