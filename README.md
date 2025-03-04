@@ -201,15 +201,28 @@ You can optionally use a local development server to test app changes locally. M
     python -m pip install -r requirements.txt
     ```
 
-4. Run the local server:
+4. Tracing and logging:
+
+    To enable logging to a file, add the `APP_LOG_FILE` environment variable definition to the `.env` file in the `src` directory. See [Logging](#logging) for more information. As an example, to log to a file named `app.log` add the following to the `.env` file:
+    ```code
+    APP_LOG_FILE=app.log
+    ```
+
+    To enable Azure Monitor tracing, add the `ENABLE_AZURE_MONITOR_TRACING` and `AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED` environment variable definitions to the `.env` file in the `src` directory. See [Tracing to Azure Monitor](#tracing-to-azure-monitor) for more information. As an example, to enable tracing to Azure Monitor without tracing message contents, add the following to the '.env' file:
+    ```code
+    ENABLE_AZURE_MONITOR_TRACING=true
+    AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=false
+    ```
+
+5. Run the local server:
 
     ```shell
     python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
-5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
+6. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
 
-6. Enter your message in the box.
+7. Enter your message in the box.
 </details>
 
 <details>
