@@ -15,29 +15,8 @@ from fastapi.staticfiles import StaticFiles
 from .search_index_manager import SearchIndexManager
 from .util import get_logger
 
-logger = get_logger(
-    name="azureaiapp",
-    log_level=logging.INFO,
-    log_file_name = os.getenv("APP_LOG_FILE"),
-    log_to_console=True
-)
-
-enable_trace_string = os.getenv("ENABLE_AZURE_MONITOR_TRACING", "")
+logger = None
 enable_trace = False
-if enable_trace_string == "":
-    enable_trace = False
-else:
-    enable_trace = str(enable_trace_string).lower() == "true"
-if enable_trace:
-    logger.info("Tracing is enabled.")
-    try:
-        from azure.monitor.opentelemetry import configure_azure_monitor
-    except ModuleNotFoundError:
-        logger.error("Required libraries for tracing not installed.")
-        logger.error("Please make sure azure-monitor-opentelemetry is installed.")
-        exit()
-else:
-    logger.info("Tracing is not enabled")
 
 @contextlib.asynccontextmanager
 async def lifespan(app: fastapi.FastAPI):
@@ -72,6 +51,7 @@ async def lifespan(app: fastapi.FastAPI):
             logger.error("Enable it via the 'Tracing' tab in your AI Foundry project page.")
             exit()
         else:
+            from azure.monitor.opentelemetry import configure_azure_monitor
             configure_azure_monitor(connection_string=application_insights_connection_string)
 
     chat = await project.inference.get_chat_completions_client()
@@ -106,14 +86,39 @@ async def lifespan(app: fastapi.FastAPI):
 
     await project.close()
     await chat.close()
-    if rag is not None:
-        await rag.close()
+    if search_index_manager is not None:
+        await search_index_manager.close()
 
 
 def create_app():
     if not os.getenv("RUNNING_IN_PRODUCTION"):
-        logger.info("Loading .env file")
         load_dotenv(override=True)
+
+    global logger
+    logger = get_logger(
+        name="azureaiapp",
+        log_level=logging.INFO,
+        log_file_name = os.getenv("APP_LOG_FILE"),
+        log_to_console=True
+    )
+
+    enable_trace_string = os.getenv("ENABLE_AZURE_MONITOR_TRACING", "")
+    global enable_trace
+    enable_trace = False
+    if enable_trace_string == "":
+        enable_trace = False
+    else:
+        enable_trace = str(enable_trace_string).lower() == "true"
+    if enable_trace:
+        logger.info("Tracing is enabled.")
+        try:
+            from azure.monitor.opentelemetry import configure_azure_monitor
+        except ModuleNotFoundError:
+            logger.error("Required libraries for tracing not installed.")
+            logger.error("Please make sure azure-monitor-opentelemetry is installed.")
+            exit()
+    else:
+        logger.info("Tracing is not enabled")
 
     app = fastapi.FastAPI(lifespan=lifespan)
     app.mount("/static", StaticFiles(directory="api/static"), name="static")
