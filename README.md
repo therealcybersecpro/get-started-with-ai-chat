@@ -36,7 +36,7 @@ Make sure the following tools are installed:
 Download the project code:
 
 ```shell
-git clone https://github.com/Azure-Samples/azureai-basic-python.git
+git clone https://github.com/Azure-Samples/get-started-with-ai-chat.git
 ```
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
@@ -85,7 +85,7 @@ This feature is enabled by default. To configure or disable the RAG feature in y
 2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names),
 or [customize the models](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now.
 
-3. Provision and deploy all the resources by running the following in azureai-basic-python directory:
+3. Provision and deploy all the resources by running the following in get-started-with-ai-chat directory:
 
     ```shell
     azd up
@@ -174,15 +174,28 @@ You can optionally use a local development server to test app changes locally. M
     python -m pip install -r requirements.txt
     ```
 
-4. Run the local server:
+4. Tracing and logging:
+
+    To enable logging to a file, add the `APP_LOG_FILE` environment variable definition to the `.env` file in the `src` directory. See [Logging](#logging) for more information. As an example, to log to a file named `app.log` add the following to the `.env` file:
+    ```code
+    APP_LOG_FILE=app.log
+    ```
+
+    To enable Azure Monitor tracing, add the `ENABLE_AZURE_MONITOR_TRACING` and `AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED` environment variable definitions to the `.env` file in the `src` directory. See [Tracing to Azure Monitor](#tracing-to-azure-monitor) for more information. As an example, to enable tracing to Azure Monitor without tracing message contents, add the following to the '.env' file:
+    ```code
+    ENABLE_AZURE_MONITOR_TRACING=true
+    AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=false
+    ```
+
+5. Run the local server:
 
     ```shell
     python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
-5. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
+6. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
 
-6. Enter your message in the box.
+7. Enter your message in the box.
 </details>
 
 <details>
@@ -194,7 +207,7 @@ You can run this template virtually by using GitHub Codespaces. The button will 
 
 1. Open the template (this may take several minutes):
 
-    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/azureai-basic-python)
+    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/get-started-with-ai-chat)
 
 2. Open a terminal window
 3. Continue with the [deploying steps](#deployment)
@@ -211,7 +224,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
 1. Start Docker Desktop (install it if not already installed [Docker Desktop](https://www.docker.com/products/docker-desktop/))
 2. Open the project:
 
-    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/azureai-basic-python)
+    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/get-started-with-ai-chat)
 
 3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
 4. Continue with the [deploying steps](#deployment)
