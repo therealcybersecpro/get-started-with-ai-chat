@@ -70,9 +70,9 @@ ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
  
 The Retrieval-Augmented Generation (RAG) feature helps improve the responses from your application by combining the power of large language models (LLMs) with extra context retrieved from an external data source. Simply put, when you ask a question, the application first searches through a set of relevant documents (stored as embeddings) and then uses this context to provide a more accurate and relevant response. If no relevant context is found, the application returns the LLM response directly.
  
-To enable and configure the RAG feature in your application, please refer to the following detailed documentation:
+This feature is enabled by default configure or disable the RAG feature in your application, please refer to the following detailed documentation:
  
-**Retrieval-Augmented Generation (RAG) Setup Guide (RAG.md)**
+**[Retrieval-Augmented Generation (RAG) Setup Guide](docs/RAG.md)**
 
 ## Deployment
 
