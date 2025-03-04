@@ -36,7 +36,7 @@ Make sure the following tools are installed:
 Download the project code:
 
 ```shell
-git clone https://github.com/Azure-Samples/azureai-basic-python.git
+git clone https://github.com/Azure-Samples/get-started-with-ai-chat.git
 ```
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
