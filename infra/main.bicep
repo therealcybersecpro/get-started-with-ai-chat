@@ -134,7 +134,7 @@ var resourceToken = toLower(uniqueString(subscription().id, environmentName, loc
 var projectName = !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
 var tags = { 'azd-env-name': environmentName }
 
-var aiDeployments = [
+var aiChatModel = [
   {
     name: chatDeploymentName
     model: {
@@ -147,6 +147,8 @@ var aiDeployments = [
       capacity: chatDeploymentCapacity
     }
   }
+]
+var aiEmbeddingModel = [ 
   {
     name: embeddingDeploymentName
     model: {
@@ -160,6 +162,10 @@ var aiDeployments = [
     }
   }
 ]
+
+var aiDeployments = concat(
+  aiChatModel,
+  useSearchService ? aiEmbeddingModel : [])
 
 //for container and app api
 param apiAppExists bool = false
