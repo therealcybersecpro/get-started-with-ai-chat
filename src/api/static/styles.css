@@ -17,3 +17,7 @@ html, body {
 .background-assistant {
     background-color: #2c8310;
 }
+
+.error {
+	color: #ff0000;
+}
