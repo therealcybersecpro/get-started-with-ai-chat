@@ -27,11 +27,14 @@ This solution creates an Azure AI Foundry hub, project and connected resources i
 #### Azure account
 If you do not have an Azure Subscription, you can sign up for a [free Azure account](https://azure.microsoft.com/free/) and create an Azure Subscription.
 
-**NOTE!** Whether you sign up for a new account, or use an existing subscription, check that you have the necessary permissions and quotas:
+To deploy this Azure environment successfully, your Azure account (the account you authenticate with) must have the following permissions and prerequisites on the targeted Azure Subscription:
 
-* Your Azure account for the Azure Subscription that you are using must have `Microsoft.Authorization/roleAssignments/write` permissions, such as [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner).
-* Your Azure account also needs `Microsoft.Resources/deployments/write` permissions on the subscription level.
-* Check that the account has quotas to deploy the desired chat and embedding model and the model is [available at the region](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#model-summary-table-and-region-availability), where the Azure AI Foundry is being created.
+- **Microsoft.Authorization/roleAssignments/write** permissions at the subscription scope.  
+  _(typically included if you have [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner) role_
+- **Microsoft.Resources/deployments/write** permissions at the subscription scope.
+- **Sufficient quotas** available to deploy the selected chat and embedding model.
+- **Regional availability**: The chosen model must be available in the Azure region where your Azure AI Foundry environment is created. [Verify region availability here.](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#model-summary-table-and-region-availability)
+
 
 You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click on the role you want to view more information about.
 
