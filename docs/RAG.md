@@ -38,11 +38,26 @@ await search_index_manager.build_embeddings_file(
 - `sentences_per_embedding  parameter`, specifies the number of sentences used to construct the embedding. The larger this number, the broader the context that will be identified during the similarity search.
 
 ## Deploying the Application with RAG enabled
-To deploy your application using the RAG feature, set the following environment variables:
+To deploy your application using the RAG feature, set the following environment variables locally:
+In power shell:
 ```
-USE_SEARCH_SERVICE=true
-AZURE_AI_SEARCH_INDEX_NAME=index_sample
-AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
+$env:USE_SEARCH_SERVICE="true"
+$env:AZURE_AI_SEARCH_INDEX_NAME="index_sample"
+$env:AZURE_AI_EMBED_DEPLOYMENT_NAME="text-embedding-3-small"
+```
+
+In bash:
+```
+export USE_SEARCH_SERVICE="true"
+export AZURE_AI_SEARCH_INDEX_NAME="index_sample"
+export AZURE_AI_EMBED_DEPLOYMENT_NAME="text-embedding-3-small"
+```
+
+In cmd:
+```
+set USE_SEARCH_SERVICE=true
+set AZURE_AI_SEARCH_INDEX_NAME=index_sample
+set AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 ```
 
 - `USE_SEARCH_SERVICE`: Enables (default) or disables RAG.
