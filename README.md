@@ -32,11 +32,13 @@ To deploy this Azure environment successfully, your Azure account (the account y
 - **Microsoft.Authorization/roleAssignments/write** permissions at the subscription scope.  
   _(typically included if you have [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator-preview), [User Access Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator), or [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner) role_
 - **Microsoft.Resources/deployments/write** permissions at the subscription scope.
+
+You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click the role you want to view more information about.
+
+Additionally the following are required for successful deployment:
+
 - **Sufficient quotas** available to deploy the selected chat and embedding model.
 - **Regional availability**: The chosen model must be available in the Azure region where your Azure AI Foundry environment is created. [Verify region availability here.](https://learn.microsoft.com/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-embeddings#model-summary-table-and-region-availability)
-
-
-You can view the permissions for your account and subscription by going to Azure portal, clicking 'Subscriptions' under 'Navigation' and then choosing your subscription from the list. If you try to search for your subscription and it does not come up, make sure no filters are selected. After selecting your subscription, select 'Access control (IAM)' and you can see the roles that are assigned to your account for this subscription. If you want to see more information about the roles, you can go to the 'Role assignments' tab and search by your account name and then click on the role you want to view more information about.
 
 #### Required tools
 Make sure the following tools are installed:
