@@ -3,7 +3,7 @@
 # Retrieval-Augmented Generation (RAG) Setup Guide
 ## Overview
 The Retrieval-Augmented Generation (RAG) feature helps improve the responses from your application by combining the power of large language models (LLMs) with extra context retrieved from an external data source. Simply put, when you ask a question, the application first searches through a set of relevant documents (stored as embeddings) and then uses this context to provide a more accurate and relevant response. If no relevant context is found, the application returns the LLM response directly.
-This RAG feature is optional and enabled by default. If you prefer not to use it, simply set the local environment variable `USE_SEARCH_SERVICE` to `false`. Doing so will also skip creating the Azure AI Search resources by `azd up` command.
+This RAG feature is optional and is disabled by default. If you prefer to use it, simply set the environment variable `USE_AZURE_AI_SEARCH_SERVICE` to `true`. Doing so will also trigger the deployment of Azure AI Search resources.
 
 ## How does RAG work in this application?
 In our provided example, the application includes a sample dataset containing information about hiking products. This data was split into sentences, and each sentence was transformed into numerical representations called embeddings. These embeddings were created using OpenAI's `text-embedding-3-small` model with `dimensions=100`. The resulting embeddings file (`embeddings.csv`) is located in the `api/data` folder.
