@@ -90,8 +90,9 @@ async def chat_stream_handler(
                         )
                         + "\n"
                     )
-        except HttpResponseError as e:
-            response = "<FONT color=red>Error: {}</FONT>"
+        except BaseException as e:
+            error_processed = False
+            response = "<div class=\"error\">Error: {}</div>"
             try:
                 if '(content_filter)' in e.args[0]:
                     rai_dict = e.response.json()['error']['innererror']['content_filter_result']
