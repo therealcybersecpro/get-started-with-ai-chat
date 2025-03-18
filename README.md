@@ -114,7 +114,7 @@ The default for the model capacity in deployment is 30k tokens. For optimal perf
  
 The Retrieval-Augmented Generation (RAG) feature helps improve the responses from your application by combining the power of large language models (LLMs) with extra context retrieved from an external data source. Simply put, when you ask a question, the application first searches through a set of relevant documents (stored as embeddings) and then uses this context to provide a more accurate and relevant response. If no relevant context is found, the application returns the LLM response directly.
  
-This feature is enabled by default. To configure or disable the RAG feature in your application, please refer to the following detailed documentation:
+This feature is disabled by default. To configure and enable the RAG feature in your application, please refer to the following detailed documentation:
  
 **[Retrieval-Augmented Generation (RAG) Setup Guide](docs/RAG.md)**
 
