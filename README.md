@@ -16,8 +16,8 @@ This solution creates an Azure AI Foundry hub, project and connected resources i
 
 ## Quick Deploy
 
-| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/get-started-with-ai-chat) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/get-started-with-ai-chat) | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fget-started-with-ai-chat%2Frefs%2Fheads%2Fmain%2Finfra%2Fmain.json) |
-|---|---|---|
+| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/get-started-with-ai-chat) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/get-started-with-ai-chat) |
+|---|---|
 
 
 Github Codespaces and Dev Containers both allow you to download and deploy the code for development. Deploy to Azure will create the resources for later deployment. Detailed instructions for options to deploy this solution can be found in [deployment](#deployment).        
@@ -200,7 +200,11 @@ You can optionally use a local development server to test app changes locally. M
     python -m pip install -r requirements.txt
     ```
 
-4. Tracing and logging:
+4. Duplicate `src/.env.sample` and name to `.env`.
+
+5. Fill in the environamnet variables in `.env`.
+ 
+6. Tracing and logging:
 
     To enable logging to a file, add the `APP_LOG_FILE` environment variable definition to the `.env` file in the `src` directory. See [Logging](#logging) for more information. As an example, to log to a file named `app.log` add the following to the `.env` file:
     ```code
@@ -213,15 +217,15 @@ You can optionally use a local development server to test app changes locally. M
     AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=false
     ```
 
-5. Run the local server:
+7. Run the local server:
 
     ```shell
     python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
-6. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
+8. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
 
-7. Enter your message in the box.
+10. Enter your message in the box.
 </details>
 
 
