@@ -14,21 +14,20 @@ For a more comprehensive list of best practices and security recommendations for
 
 ## Features
 
-This solution creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. For more details about the resources that are created, view the [resources](#resources) documentation. There are options to enable Retrieval-Augmented Generation (RAG) and use logging, tracing, and monitoring. 
+This solution creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. More details about the resources can be found in the [resources](#resources) documentation. There are options to enable Retrieval-Augmented Generation (RAG) and use logging, tracing, and monitoring. 
 
 #### Architecture diagram
 
 ![Architecture diagram showing that user input used in conjunction with user identity to call app code running in Azure Container apps that processes the user input and generates a response to the user. The app code leverages Azure AI projects, Azure AI model inference, prompty, and Azure AI Search.](docs/architecture.png)
+        
+## Getting Started
 
-## Quick Deploy
+### Quick Deploy
 
 | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/get-started-with-ai-chat) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/get-started-with-ai-chat) |
 |---|---|
 
-
-Github Codespaces and Dev Containers both allow you to download and deploy the code for development. Deploy to Azure will create the resources for later deployment. Detailed instructions for options to deploy this solution can be found in [deployment](#deployment).        
-        
-## Getting Started
+Github Codespaces and Dev Containers both allow you to download and deploy the code for development. You can also continue with local development. Once you have selected your environment, follow the instructions below to customize and deploy your solution.       
 
 ### Prerequisites
 
@@ -59,7 +58,9 @@ Make sure the following tools are installed:
 ## Development
 
 #### Code
-Download the project code:
+If you are using one of the [Quick Deploy options](#quick-deploy), open the codespace now. 
+
+If you are not using any of the Quick Deploy options, download the project code:
 
 ```shell
 git clone https://github.com/Azure-Samples/get-started-with-ai-chat.git
@@ -67,10 +68,10 @@ git clone https://github.com/Azure-Samples/get-started-with-ai-chat.git
 At this point you could make changes to the code if required. However, no changes are needed to deploy and test the app as shown in the next step.
 
 #### Logging
-If you want to enable logging to a file, uncomment the following line in Dockerfile located in the src directory:
+To enable logging to a file, navigate to `src/Dockerfile` and edit the code to uncomment the following line:
 
- ```
- ENV APP_LOG_FILE=app.log
+ ```code
+ # ENV APP_LOG_FILE=app.log
  ```
 
  By default the file name app.log is used. You can provide your own file name by replacing app.log with the desired log file name.
@@ -80,7 +81,7 @@ If you want to enable logging to a file, uncomment the following line in Dockerf
 The provided file logging implementation is intended for development purposes only, specifically for testing with a single client/worker. It should not be used in production environments after the R&D phase.
 
 #### Tracing to Azure Monitor
-To enable tracing to Azure Monitor, modify the value of ENABLE_AZURE_MONITOR_TRACING environment variable to true in Dockerfile found in src directory:
+To enable tracing to Azure Monitor, navigate to `src/Dockerfile` and modify the value of `ENABLE_AZURE_MONITOR_TRACING` environment variable to true:
 ```code
 ENV ENABLE_AZURE_MONITOR_TRACING=true
 ```
@@ -107,13 +108,12 @@ When you start a deployment, most parameters will have default values. You can c
 For a detailed description of customizable fields and instructions, view the [deployment customization guide](docs/deploy_customization.md).
 
 #### Quota Recommendations (Optional)
-<!-- TODO MAKE SURE this says something about checking that quota is availble == this might be fine -->
+
 The default for the model capacity in deployment is 30k tokens. For optimal performance, it is recommended to increase to 100k tokens. You can change the capacity by following the steps in [setting capacity and deployment SKU](docs/deploy_customization.md#customizing-model-deployments).
 
-* Navigate to the [Azure AI Foundry Portal](https://ai.azure.com/)
-* Select the AI Project you are using for this template if you are not already in the project.
-* Select Management center from the bottom left navigation menu
-* Select Quota, click the GlobalStandard dropdown and select the model and region you are using for this accelerator to see your available quota. Please note GPT-4o mini and text-embedding-ada-002 are used as default.
+* Navigate to the home screen of the [Azure AI Foundry Portal](https://ai.azure.com/).
+* Select Quota Management buttom at the bottom of the home screen.
+* In the Quota tab, click the GlobalStandard dropdown and select the model and region you are using for this accelerator to see your available quota. Please note gpt-4o-mini and text-embedding-ada-002 are used as default.
 * Request more quota or delete any unused model deployments as needed.
 
 #### Retrieval-Augmented Generation (RAG)
@@ -128,7 +128,8 @@ This feature is disabled by default. To configure and enable the RAG feature in 
 
 ### Deployment Options
 
-Pick from the options below to see step-by-step instructions for: GitHub Codespaces, VS Code Dev Containers, and Local Environments. 
+Pick from the options below to see step-by-step instructions for: GitHub Codespaces, VS Code Dev Containers, and Local Environment. If you encounter an issue with any of the following options, try a different one. 
+
 <details>
   <summary><b>GitHub Codespaces</b></summary>
 
@@ -208,7 +209,7 @@ You can optionally use a local development server to test app changes locally. M
 
 4. Duplicate `src/.env.sample` and name to `.env`.
 
-5. Fill in the environamnet variables in `.env`.
+5. Fill in the environment variables in `.env`.
  
 6. Tracing and logging:
 
@@ -248,6 +249,12 @@ Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Co
 
 2. (Optional) If you would like to customize the deployment to [disable resources](docs/deploy_customization.md#disabling-resources), [customize resource names](docs/deploy_customization.md#customizing-resource-names), [customize the models](docs/deploy_customization.md#customizing-model-deployments) or [increase quota](docs/deploy_customization.md#customizing-model-deployments), you can follow those steps now. 
 
+    ⚠️ **NOTE!** For optimal performance, the recommended quota is 100k tokens per minute. If you have the capacity, we recommend increasing the quota by running the following command: 
+    ```shell
+    azd env set AZURE_AI_CHAT_DEPLOYMENT_CAPACITY 100
+    ```
+    If you do not increase your quota, you may encounter rate limit issues. If needed, you can increase the quota after deployment by editing your model in the Models and Endpoints tab of the [Azure AI Foundry Portal](https://ai.azure.com/).
+
 3. Provision and deploy all the resources by running the following in get-started-with-ai-chat directory:
 
     ```shell
@@ -257,18 +264,23 @@ Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Co
 4. You will be prompted to provide an `azd` environment name (like "azureaiapp"), select a subscription from your Azure account, and select a location which has quota for all the resources. Then, it will provision the resources in your account and deploy the latest code. 
 
     * For guidance on selecting a region with quota and model availability, follow the instructions in the [quota recommendations](#quota-recommendations-optional) section and ensure that your model is available in your selected region by checking the [list of models supported by Azure AI Agent Service](https://learn.microsoft.com/azure/ai-services/agents/concepts/model-region-support)
-    * This deployment will take 8-12 minutes to provision the resources in your account and set up the solution with sample data.
+    * This deployment will take 7-10 minutes to provision the resources in your account and set up the solution with sample data.
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources. You can do this by running `azd down` and deleting the `.azure` folder from your code, and then running `azd up` again and selecting a new region.
 
     **NOTE!** If you get authorization failed and/or permission related errors during the deployment, please refer to the Azure account requirements in the [Prerequisites](#prerequisites) section. If you were recently granted these permissions, it may take a few minutes for the authorization to apply.
 
 5. When `azd` has finished deploying, you'll see an endpoint URI in the command output. Visit that URI, and you should see the app! 🎉
-   You can view information about your deployment with:
-    ```shell
-    azd show
-    ```
+    * From here, you can send messages in the chat. Send a greeting, ask for a joke, or just start a conversation! If you have enabled Retrieval Augmented Generation, try asking about the uploaded data. 
+    * You can view information about your deployment with:
+        ```shell
+        azd show
+        ```
 
-6. If you make further modification to the app code, you can deploy the updated version with:
+6. (Optional) Now that your app has deployed, you can view your resources in the Azure Portal and your deployments in Azure AI Foundry. 
+    * In the [Azure Portal](https://portal.azure.com/), navigate to your environment's resource group. The name will be `rg-[your environment name]`. Here, you should see your container app, storage account, and all of the other [resources](#resources) that are created in the deployment.
+    * In the [Azure AI Foundry Portal](https://ai.azure.com/), select your project. If you navigate to the Models and Endpoints tab, you should see your AI Services connection with your model deployments. 
+
+7. (Optional) If you make further modification to the app code, you can deploy the updated version with:
 
     ```shell
     azd deploy
@@ -279,12 +291,27 @@ Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Co
     ```
     Check for any errors during the deployment, since updated app code will not get deployed if errors occur.
 
-7. You can optionally use a local development server to test app changes locally. To do so, follow the steps in [local deployment server](#local-development-server) after your app is deployed.
+8. (Optional) You can use a local development server to test app changes locally. To do so, follow the steps in [local deployment server](#local-development-server) after your app is deployed.
 
-8. When you are done using your application, you can now delete the resources by running `azd down`. This may take up to 20 minutes. 
+## Resource Clean-up
 
-⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
-either by deleting the resource group in the Portal or running `azd down`.
+To prevent incurring unnecessary charges, it's important to clean up your Azure resources after completing your work with the application.
+
+- **When to Clean Up:**
+  - After you have finished testing or demonstrating the application.
+  - If the application is no longer needed or you have transitioned to a different project or environment.
+  - When you have completed development and are ready to decommission the application.
+
+- **Deleting Resources:**
+  To delete all associated resources and shut down the application, execute the following command:
+
+    ```bash
+    azd down
+    ```
+
+    Please note that this process may take up to 20 minutes to complete.
+
+⚠️ Alternatively, you can delete the resource group directly from the Azure Portal to clean up resources.
 
 ## Tracing and Monitoring
 
