@@ -1,7 +1,7 @@
 
 # Azure AI Foundry Starter Template: Deployment customization
 
-This document describes how to customize the deployment of the Azure AI Foundry Starter Template. Once you follow the steps here, you can run `azd up` as described in the [Deploying](./README.md#deploying) steps.
+This document describes how to customize the deployment of the Azure AI Foundry Starter Template. Once you follow the steps here, you can run `azd up` as described in the [Deploying](./../README.md#deploying-steps) steps.
 
 * [Disabling resources](#disabling-resources)
 * [Customizing resource names](#customizing-resource-names)
