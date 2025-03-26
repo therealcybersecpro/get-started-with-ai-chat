@@ -5,11 +5,12 @@ metadata:
   template: azd-get-started-with-ai-chat@0.0.1-beta
 
 services:
-  api:
+  "api and frontend":
     project: ./src
     language: py
     host: containerapp
     docker:
+      image: api-and-frontend
       remoteBuild: true
 
 hooks:

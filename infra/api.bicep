@@ -54,8 +54,10 @@ var env = [
   }
 ]
 
+var module_name = replace(serviceName, ' ', '-')
+
 module app 'core/host/container-app-upsert.bicep' = {
-  name: '${serviceName}-container-app-module'
+  name: '${module_name}-container-app-module'
   params: {
     name: name
     location: location
