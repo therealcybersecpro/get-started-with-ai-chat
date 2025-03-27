@@ -41,26 +41,26 @@ await search_index_manager.build_embeddings_file(
 To deploy your application using the RAG feature, set the following environment variables locally:
 In power shell:
 ```
-$env:USE_SEARCH_SERVICE="true"
+$env:USE_AZURE_AI_SEARCH_SERVICE="true"
 $env:AZURE_AI_SEARCH_INDEX_NAME="index_sample"
 $env:AZURE_AI_EMBED_DEPLOYMENT_NAME="text-embedding-3-small"
 ```
 
 In bash:
 ```
-export USE_SEARCH_SERVICE="true"
+export USE_AZURE_AI_SEARCH_SERVICE="true"
 export AZURE_AI_SEARCH_INDEX_NAME="index_sample"
 export AZURE_AI_EMBED_DEPLOYMENT_NAME="text-embedding-3-small"
 ```
 
 In cmd:
 ```
-set USE_SEARCH_SERVICE=true
+set USE_AZURE_AI_SEARCH_SERVICE=true
 set AZURE_AI_SEARCH_INDEX_NAME=index_sample
 set AZURE_AI_EMBED_DEPLOYMENT_NAME=text-embedding-3-small
 ```
 
-- `USE_SEARCH_SERVICE`: Enables (default) or disables RAG.
+- `USE_AZURE_AI_SEARCH_SERVICE`: Enables (default) or disables RAG.
 - `AZURE_AI_SEARCH_INDEX_NAME`: The Azure Search Index the application will use.
 - `AZURE_AI_EMBED_DEPLOYMENT_NAME`: The Azure embedding deployment used to create embeddings.
 
