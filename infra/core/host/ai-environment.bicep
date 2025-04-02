@@ -22,8 +22,6 @@ param aiServicesContentSafetyConnectionName string
 param logAnalyticsName string = ''
 @description('The Application Insights resource name.')
 param applicationInsightsName string = ''
-@description('The Container Registry resource name.')
-param containerRegistryName string = ''
 @description('The Azure Search resource name.')
 param searchServiceName string = ''
 @description('The Azure Search connection name.')
@@ -37,7 +35,6 @@ module hubDependencies '../ai/hub-dependencies.bicep' = {
     tags: tags
     keyVaultName: keyVaultName
     storageAccountName: storageAccountName
-    containerRegistryName: containerRegistryName
     applicationInsightsName: applicationInsightsName
     logAnalyticsName: logAnalyticsName
     aiServicesName: aiServicesName
@@ -55,7 +52,6 @@ module hub '../ai/hub.bicep' = {
     displayName: hubName
     keyVaultId: hubDependencies.outputs.keyVaultId
     storageAccountId: hubDependencies.outputs.storageAccountId
-    containerRegistryId: hubDependencies.outputs.containerRegistryId
     applicationInsightsId: hubDependencies.outputs.applicationInsightsId
     aiServicesName: hubDependencies.outputs.aiServicesName
     aiServicesConnectionName: aiServicesConnectionName
@@ -96,10 +92,6 @@ output keyVaultEndpoint string = hubDependencies.outputs.keyVaultEndpoint
 // Application Insights
 output applicationInsightsName string = hubDependencies.outputs.applicationInsightsName
 output logAnalyticsWorkspaceName string = hubDependencies.outputs.logAnalyticsWorkspaceName
-
-// Container Registry
-output containerRegistryName string = hubDependencies.outputs.containerRegistryName
-output containerRegistryEndpoint string = hubDependencies.outputs.containerRegistryEndpoint
 
 // Storage Account
 output storageAccountName string = hubDependencies.outputs.storageAccountName

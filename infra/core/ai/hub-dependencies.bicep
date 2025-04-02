@@ -114,16 +114,6 @@ module applicationInsights '../monitor/applicationinsights.bicep' =
     }
   }
 
-module containerRegistry '../host/container-registry.bicep' =
-  if (!empty(containerRegistryName)) {
-    name: 'containerRegistry'
-    params: {
-      location: location
-      tags: tags
-      name: containerRegistryName
-    }
-  }
-
 module cognitiveServices '../ai/cognitiveservices.bicep' = {
   name: 'cognitiveServices'
   params: {
@@ -152,10 +142,6 @@ output keyVaultEndpoint string = keyVault.outputs.endpoint
 
 output storageAccountId string = storageAccount.outputs.id
 output storageAccountName string = storageAccount.outputs.name
-
-output containerRegistryId string = !empty(containerRegistryName) ? containerRegistry.outputs.id : ''
-output containerRegistryName string = !empty(containerRegistryName) ? containerRegistry.outputs.name : ''
-output containerRegistryEndpoint string = !empty(containerRegistryName) ? containerRegistry.outputs.loginServer : ''
 
 output applicationInsightsId string = !empty(applicationInsightsName) ? applicationInsights.outputs.id : ''
 output applicationInsightsName string = !empty(applicationInsightsName) ? applicationInsights.outputs.name : ''
