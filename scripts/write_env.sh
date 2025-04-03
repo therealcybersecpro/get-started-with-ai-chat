@@ -13,4 +13,7 @@ echo "AZURE_AI_EMBED_DEPLOYMENT_NAME=$(azd env get-value AZURE_AI_EMBED_DEPLOYME
 echo "AZURE_AI_EMBED_DIMENSIONS=$(azd env get-value AZURE_AI_EMBED_DIMENSIONS)" >> $ENV_FILE_PATH
 echo "AZURE_AI_SEARCH_INDEX_NAME=$(azd env get-value AZURE_AI_SEARCH_INDEX_NAME)" >> $ENV_FILE_PATH
 echo "AZURE_AI_SEARCH_ENDPOINT=$(azd env get-value AZURE_AI_SEARCH_ENDPOINT)" >> $ENV_FILE_PATH
+
+echo "Web app URL:"
+echo -e "\033[0;36m $(azd env get-value SERVICE_API_URI)"
 exit 0

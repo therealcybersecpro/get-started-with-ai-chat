@@ -12,6 +12,7 @@ $azureAIEmbedDeploymentName = azd env get-value AZURE_AI_EMBED_DEPLOYMENT_NAME
 $azureAIEmbedDimensions = azd env get-value AZURE_AI_EMBED_DIMENSIONS
 $azureAISearchIndexName = azd env get-value AZURE_AI_SEARCH_INDEX_NAME
 $azureAISearchEndpoint = azd env get-value AZURE_AI_SEARCH_ENDPOINT
+$serviceAPIUri = azd env get-value SERVICE_API_URI
 
 Add-Content -Path $envFilePath -Value "AZURE_AIPROJECT_CONNECTION_STRING=$azureAiProjectConnectionString"
 Add-Content -Path $envFilePath -Value "AZURE_AI_CHAT_DEPLOYMENT_NAME=$azureAiChatDeploymentName"
@@ -20,3 +21,6 @@ Add-Content -Path $envFilePath -Value "AZURE_AI_EMBED_DEPLOYMENT_NAME=$azureAIEm
 Add-Content -Path $envFilePath -Value "AZURE_AI_EMBED_DIMENSIONS=$azureAIEmbedDimensions"
 Add-Content -Path $envFilePath -Value "AZURE_AI_SEARCH_INDEX_NAME=$azureAISearchIndexName"
 Add-Content -Path $envFilePath -Value "AZURE_AI_SEARCH_ENDPOINT=$azureAISearchEndpoint"
+
+Write-Host "Web app URL:"
+Write-Host $serviceAPIUri -ForegroundColor Cyan

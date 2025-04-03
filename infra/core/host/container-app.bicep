@@ -25,12 +25,6 @@ param containerMinReplicas int = 1
 @description('The name of the container')
 param containerName string = 'main'
 
-@description('The name of the container registry')
-param containerRegistryName string = ''
-
-@description('Hostname suffix for container registry. Set when deploying to sovereign clouds')
-param containerRegistryHostSuffix string = 'azurecr.io'
-
 @description('The protocol used by Dapr to connect to the app, e.g., http or grpc')
 @allowed([ 'http', 'grpc' ])
 param daprAppProtocol string = 'http'
@@ -75,23 +69,14 @@ param serviceType string = ''
 @description('The target port for the container')
 param targetPort int = 80
 
+param dependOn string = '' 
+
 resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
   name: identityName
 }
 
-// Private registry support requires both an ACR name and a User Assigned managed identity
-var usePrivateRegistry = !empty(identityName) && !empty(containerRegistryName)
-
 // Automatically set to `UserAssigned` when an `identityName` has been set
 var normalizedIdentityType = !empty(identityName) ? 'UserAssigned' : identityType
-
-module containerRegistryAccess '../security/registry-access.bicep' = if (usePrivateRegistry) {
-  name: '${deployment().name}-registry-access'
-  params: {
-    containerRegistryName: containerRegistryName
-    principalId: usePrivateRegistry ? userIdentity.properties.principalId : ''
-  }
-}
 
 resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: name
@@ -101,7 +86,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
   // otherwise the container app will throw a provision error
   // This also forces us to use an user assigned managed identity since there would no way to 
   // provide the system assigned identity with the ACR pull access before the app is created
-  dependsOn: usePrivateRegistry ? [ containerRegistryAccess ] : []
+  dependsOn: empty(dependOn)? [] : [dependOn]
   identity: {
     type: normalizedIdentityType
     userAssignedIdentities: !empty(identityName) && normalizedIdentityType == 'UserAssigned' ? { '${userIdentity.id}': {} } : null
@@ -129,18 +114,13 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
         value: secret.value
       }]
       service: !empty(serviceType) ? { type: serviceType } : null
-      registries: usePrivateRegistry ? [
-        {
-          server: '${containerRegistryName}.${containerRegistryHostSuffix}'
-          identity: userIdentity.id
-        }
-      ] : []
+      registries: []
     }
     template: {
       serviceBinds: !empty(serviceBinds) ? serviceBinds : null
       containers: [
         {
-          image: !empty(imageName) ? imageName : 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          image: 'azdtemplate.azurecr.io/get-start-with-ai-chat:latest'
           name: containerName
           env: env
           resources: {

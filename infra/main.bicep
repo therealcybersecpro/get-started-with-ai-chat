@@ -56,8 +56,6 @@ param aiServicesName string = ''
 param aiServicesConnectionName string = ''
 @description('The AI Services content safety connection name. If ommited will use a default value')
 param aiServicesContentSafetyConnectionName string = ''
-@description('The Azure Container Registry resource name. If ommited will be generated')
-param containerRegistryName string = ''
 @description('The Azure Key Vault resource name. If ommited will be generated')
 param keyVaultName string = ''
 @description('The Azure Search resource name. If ommited will be generated')
@@ -70,61 +68,57 @@ param aiSearchIndexName string = ''
 param storageAccountName string = ''
 @description('The log analytics workspace name. If ommited will be generated')
 param logAnalyticsWorkspaceName string = ''
-@description('Id of the user or app to assign application roles')
-param principalId string = ''
 @description('Random seed to be used during generation of new resources suffixes.')
 param seed string = newGuid()
 
 // Chat completion model
 @description('Format of the chat model to deploy')
 @allowed(['Microsoft', 'OpenAI'])
-param chatModelFormat string
+param chatModelFormat string = 'OpenAI'
 
 @description('Name of the chat model to deploy')
-param chatModelName string
+param chatModelName string = 'gpt-4o-mini'
 @description('Name of the model deployment')
-param chatDeploymentName string
+param chatDeploymentName string = 'gpt-4o-mini'
 
 @description('Version of the chat model to deploy')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability
-param chatModelVersion string
+param chatModelVersion string = '2024-07-18'
 
 @description('Sku of the chat deployment')
-param chatDeploymentSku string
+param chatDeploymentSku string = 'GlobalStandard'
 
 @description('Capacity of the chat deployment')
 // You can increase this, but capacity is limited per model/region, so you will get errors if you go over
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
-param chatDeploymentCapacity int
+param chatDeploymentCapacity int = 30
 
 // Embedding model
 @description('Format of the embedding model to deploy')
 @allowed(['Microsoft', 'OpenAI'])
-param embedModelFormat string
+param embedModelFormat string = 'OpenAI'
 
 @description('Name of the embedding model to deploy')
-param embedModelName string
+param embedModelName string = 'text-embedding-3-small'
 @description('Name of the embedding model deployment')
-param embeddingDeploymentName string
+param embeddingDeploymentName string = 'text-embedding-3-small'
 @description('Embedding model dimensionality')
-param embeddingDeploymentDimensions string
+param embeddingDeploymentDimensions string = '100'
 
 @description('Version of the embedding model to deploy')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#embeddings-models
-@secure()
-param embedModelVersion string
+param embedModelVersion string = '1'
 
 @description('Sku of the embeddings model deployment')
-param embedDeploymentSku string
+param embedDeploymentSku string = 'Standard'
 
 @description('Capacity of the embedding deployment')
 // You can increase this, but capacity is limited per model/region, so you will get errors if you go over
 // https://learn.microsoft.com/azure/ai-services/openai/quotas-limits
-param embedDeploymentCapacity int
+param embedDeploymentCapacity int = 30
 
-param useContainerRegistry bool = true
 param useApplicationInsights bool = true
 @description('Use the RAG search')
 param useSearchService bool = false
@@ -167,9 +161,6 @@ var aiDeployments = concat(
   aiChatModel,
   useSearchService ? aiEmbeddingModel : [])
 
-//for container and app api
-param apiAppExists bool = false
-
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: !empty(resourceGroupName) ? resourceGroupName : '${abbrs.resourcesResourceGroups}${environmentName}'
@@ -183,9 +174,6 @@ var logAnalyticsWorkspaceResolvedName = !useApplicationInsights
       ? logAnalyticsWorkspaceName
       : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
 
-var containerRegistryResolvedName = !useContainerRegistry
-  ? ''
-  : !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
 
 var resolvedSearchServiceName = !useSearchService
   ? ''
@@ -213,7 +201,6 @@ module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnecti
     applicationInsightsName: !useApplicationInsights
       ? ''
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    containerRegistryName: containerRegistryResolvedName
     searchServiceName: resolvedSearchServiceName
     searchConnectionName: !useSearchService
       ? ''
@@ -243,7 +230,7 @@ var projectConnectionString = empty(hostName)
 
 
 //Container apps host and api
-// Container apps host (including container registry)
+// Container apps host
 module containerApps 'core/host/container-apps.bicep' = {
   name: 'container-apps'
   scope: rg
@@ -252,9 +239,6 @@ module containerApps 'core/host/container-apps.bicep' = {
     location: location
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
-    containerRegistryName: empty(aiExistingProjectConnectionString)
-      ? ai.outputs.containerRegistryName
-      : containerRegistryResolvedName
     logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
       ? ai.outputs.logAnalyticsWorkspaceName
       : logAnalytics.outputs.name
@@ -270,62 +254,60 @@ module api 'api.bicep' = {
     name: 'ca-api-${resourceToken}'
     location: location
     tags: tags
-    serviceName: 'api_and_frontend'
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     containerAppsEnvironmentName: containerApps.outputs.environmentName
-    containerRegistryName: containerApps.outputs.registryName
     projectConnectionString: projectConnectionString
     chatDeploymentName: chatDeploymentName
     embeddingDeploymentName: embeddingDeploymentName
     embeddingDeploymentDimensions: embeddingDeploymentDimensions
     aiSearchIndexName: aiSearchIndexName
     searchServiceEndpoint: searchServiceEndpoint
-    exists: apiAppExists
+    projectName: projectName
   }
 }
 
 
-module userAcrRolePush 'core/security/role.bicep' = if (!empty(principalId)) {
+module userAcrRolePush 'core/security/role.bicep' = {
   name: 'user-role-acr-push'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '8311e382-0749-4cb8-b61a-304f252e45ec'
   }
 }
 
-module userAcrRolePull 'core/security/role.bicep' = if (!empty(principalId)) {
+module userAcrRolePull 'core/security/role.bicep' = {
   name: 'user-role-acr-pull'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
   }
 }
 
-module userRoleDataScientist 'core/security/role.bicep' = if (!empty(principalId)) {
+module userRoleDataScientist 'core/security/role.bicep' = {
   name: 'user-role-data-scientist'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: 'f6c7c914-8db3-469d-8ca1-694a8f32e121'
   }
 }
 
-module userRoleSecretsReader 'core/security/role.bicep' = if (!empty(principalId)) {
+module userRoleSecretsReader 'core/security/role.bicep' = {
   name: 'user-role-secrets-reader'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: 'ea01e6af-a1c1-4350-9563-ad00f8c72ec5'
   }
 }
 
-module userRoleAzureAIDeveloper 'core/security/role.bicep' = if (!empty(principalId)) {
+module userRoleAzureAIDeveloper 'core/security/role.bicep' = {
   name: 'user-role-azureai-developer'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
   }
 }
@@ -392,29 +374,29 @@ module backendRoleSearchServiceContributorRG 'core/security/role.bicep' = if (us
   }
 }
 
-module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'user-role-azure-index-data-contributor-rg'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
 }
 
-module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'user-role-azure-index-data-reader-rg'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   }
 }
 
-module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService && !empty(principalId)) {
+module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'user-role-azure-search-service-contributor-rg'
   scope: rg
   params: {
-    principalId: principalId
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
   }
 }
@@ -433,8 +415,6 @@ output AZURE_AI_EMBED_DIMENSIONS string = embeddingDeploymentDimensions
 
 // Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
-output AZURE_CONTAINER_REGISTRY_NAME string = containerApps.outputs.registryName
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
 output SERVICE_API_IDENTITY_PRINCIPAL_ID string = api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output SERVICE_API_URI string = api.outputs.SERVICE_API_URI

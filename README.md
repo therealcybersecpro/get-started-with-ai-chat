@@ -55,6 +55,7 @@ Make sure the following tools are installed:
 2. [Python 3.9+](https://www.python.org/downloads/)
 3. [Git](https://git-scm.com/downloads)
 4. [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+5. \[Windows Only\] [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell-on-windows) of the latest version, needed only for local application development on Windows operation system. Please make sure that PowerShell executable `pwsh.exe` is added to the `PATH` variable.
 
 ## Configure your Environment
 
@@ -283,18 +284,10 @@ Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Co
     * In the [Azure Portal](https://portal.azure.com/), navigate to your environment's resource group. The name will be `rg-[your environment name]`. Here, you should see your container app, storage account, and all of the other [resources](#resources) that are created in the deployment.
     * In the [Azure AI Foundry Portal](https://ai.azure.com/), select your project. If you navigate to the Models and Endpoints tab, you should see your AI Services connection with your model deployments. 
 
-7. (Optional) If you make further modification to the app code, you can deploy the updated version with:
+7. (Optional) You can use a local development server to test app changes locally. To do so, follow the steps in [local deployment server](#local-development-server) after your app is deployed.
 
-    ```shell
-    azd deploy
-    ```
-    You can get more detailed output with the ```--debug``` parameter.
-    ```shell
-    azd deploy --debug
-    ```
-    Check for any errors during the deployment, since updated app code will not get deployed if errors occur.
+8. (Optional) Follow this [tutorial](https://learn.microsoft.com/azure/container-registry/container-registry-tutorial-quick-task) to build your changes into a Docker image and deploy to Azure Container App.
 
-8. (Optional) You can use a local development server to test app changes locally. To do so, follow the steps in [local deployment server](#local-development-server) after your app is deployed.
 
 ## Resource Clean-up
 
