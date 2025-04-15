@@ -14,7 +14,10 @@ For a more comprehensive list of best practices and security recommendations for
 
 ## Features
 
-This solution creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. More details about the resources can be found in the [resources](#resources) documentation. There are options to enable Retrieval-Augmented Generation (RAG) and use logging, tracing, and monitoring. 
+This solution creates an Azure AI Foundry hub, project and connected resources including Azure AI Services, AI Search and more. Here is a screenshot:
+![Screenshot of chatting web application showing requests and responses between assistants and the user.](docs/webapp_screenshot.png)
+
+More details about the resources can be found in the [resources](#resources) documentation. There are options to enable Retrieval-Augmented Generation (RAG) and use logging, tracing, and monitoring. 
 
 #### Architecture diagram
 
@@ -102,6 +105,7 @@ When you start a deployment, most parameters will have default values. You can c
 
 | **Setting** | **Description** |  **Default value** |
 |------------|----------------|  ------------|
+| **Existing Project Connection String** | Specify an existing project connection string to be used instead of provisioning new resources. |   |
 | **Azure Region** | Select a region with quota which supports your selected model. |   |
 | **Model** | Choose from the [list of models supported by Azure AI Agent Service](https://learn.microsoft.com/azure/ai-services/agents/concepts/model-region-support) for your selected region | gpt-4o-mini |  
 | **Model Format** | Choose from OpenAI or Microsoft, depending on your model | OpenAI |  
