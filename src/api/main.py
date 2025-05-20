@@ -34,9 +34,9 @@ async def lifespan(app: fastapi.FastAPI):
         logger.info("Using ManagedIdentityCredential with client_id %s", user_identity_client_id)
         azure_credential = ManagedIdentityCredential(client_id=user_identity_client_id)
 
-    project = AIProjectClient.from_connection_string(
+    project = AIProjectClient(
         credential=azure_credential,
-        conn_str=os.environ["AZURE_AIPROJECT_CONNECTION_STRING"],
+        endpoint=os.environ["AZURE_EXISTING_AIPROJECT_ENDPOINT"],
     )
 
     if enable_trace:
@@ -54,8 +54,8 @@ async def lifespan(app: fastapi.FastAPI):
             from azure.monitor.opentelemetry import configure_azure_monitor
             configure_azure_monitor(connection_string=application_insights_connection_string)
 
-    chat = await project.inference.get_chat_completions_client()
-    embed = await project.inference.get_embeddings_client()
+    chat = project.inference.get_chat_completions_client()
+    embed = project.inference.get_embeddings_client()
 
     endpoint = os.environ.get('AZURE_AI_SEARCH_ENDPOINT')
     search_index_manager = None

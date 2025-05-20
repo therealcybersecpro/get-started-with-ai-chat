@@ -10,7 +10,7 @@ from fastapi import Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from azure.ai.inference.prompts import PromptTemplate
-from azure.ai.inference import ChatCompletionsClient
+from azure.ai.inference.aio import ChatCompletionsClient
 
 from .util import get_logger, ChatRequest
 from .search_index_manager import SearchIndexManager

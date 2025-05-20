@@ -19,42 +19,31 @@ param environmentName string
 })
 param location string
 
-@description('Use this parameter to use an existing AI project connection string')
-param aiExistingProjectConnectionString string = ''
+@description('Use this parameter to use an existing AI project resource ID')
+param azureExistingAIProjectResourceId string = ''
 @description('The Azure resource group where new resources will be deployed')
 param resourceGroupName string = ''
 @description('The Azure AI Foundry Hub resource name. If ommited will be generated')
-param aiHubName string = ''
-@description('The Azure AI Foundry project name. If ommited will be generated')
 param aiProjectName string = ''
 @description('The application insights resource name. If ommited will be generated')
 param applicationInsightsName string = ''
 @description('The AI Services resource name. If ommited will be generated')
 param aiServicesName string = ''
-@description('The AI Services connection name. If ommited will use a default value')
-param aiServicesConnectionName string = ''
-@description('The AI Services content safety connection name. If ommited will use a default value')
-param aiServicesContentSafetyConnectionName string = ''
-@description('The Azure Key Vault resource name. If ommited will be generated')
-param keyVaultName string = ''
 @description('The Azure Search resource name. If ommited will be generated')
 param searchServiceName string = ''
-@description('The Azure Search connection name. If ommited will use a default value')
-param searchConnectionName string = ''
 @description('The search index name')
 param aiSearchIndexName string = ''
 @description('The Azure Storage Account resource name. If ommited will be generated')
 param storageAccountName string = ''
 @description('The log analytics workspace name. If ommited will be generated')
 param logAnalyticsWorkspaceName string = ''
-@description('Random seed to be used during generation of new resources suffixes.')
-param seed string = newGuid()
+@description('Id of the user or app to assign application roles')
+param principalId string = ''
 
 // Chat completion model
 @description('Format of the chat model to deploy')
 @allowed(['Microsoft', 'OpenAI'])
 param chatModelFormat string = 'OpenAI'
-
 @description('Name of the chat model to deploy')
 param chatModelName string = 'gpt-4o-mini'
 @description('Name of the model deployment')
@@ -88,6 +77,7 @@ param embeddingDeploymentDimensions string = '100'
 @description('Version of the embedding model to deploy')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#embeddings-models
+@secure()
 param embedModelVersion string = '1'
 
 @description('Sku of the embeddings model deployment')
@@ -102,9 +92,16 @@ param useApplicationInsights bool = true
 @description('Use the RAG search')
 param useSearchService bool = false
 
+@description('Do we want to use the Azure Monitor tracing')
+param enableAzureMonitorTracing bool = false
+
+@description('Do we want to use the Azure Monitor tracing for GenAI content recording')
+param azureTracingGenAIContentRecordingEnabled bool = false
+
+
 var abbrs = loadJsonContent('./abbreviations.json')
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location, seed))
-var projectName = !empty(aiProjectName) ? aiProjectName : 'ai-project-${resourceToken}'
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+
 var tags = { 'azd-env-name': environmentName }
 
 var aiChatModel = [
@@ -153,46 +150,38 @@ var logAnalyticsWorkspaceResolvedName = !useApplicationInsights
       ? logAnalyticsWorkspaceName
       : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
 
-
 var resolvedSearchServiceName = !useSearchService
   ? ''
   : !empty(searchServiceName) ? searchServiceName : '${abbrs.searchSearchServices}${resourceToken}'
+  
 
-module ai 'core/host/ai-environment.bicep' = if (empty(aiExistingProjectConnectionString)) {
+module ai 'core/host/ai-environment.bicep' = if (empty(azureExistingAIProjectResourceId)) {
   name: 'ai'
   scope: rg
   params: {
     location: location
     tags: tags
-    hubName: !empty(aiHubName) ? aiHubName : 'ai-hub-${resourceToken}'
-    projectName: projectName
-    keyVaultName: !empty(keyVaultName) ? keyVaultName : '${abbrs.keyVaultVaults}${resourceToken}'
     storageAccountName: !empty(storageAccountName)
       ? storageAccountName
       : '${abbrs.storageStorageAccounts}${resourceToken}'
     aiServicesName: !empty(aiServicesName) ? aiServicesName : 'aoai-${resourceToken}'
-    aiServicesConnectionName: !empty(aiServicesConnectionName) ? aiServicesConnectionName : 'aoai-${resourceToken}'
-    aiServicesContentSafetyConnectionName: !empty(aiServicesContentSafetyConnectionName)
-      ? aiServicesContentSafetyConnectionName
-      : 'aoai-content-safety-connection'
+    aiProjectName: !empty(aiProjectName) ? aiProjectName : 'proj-${resourceToken}'
     aiServiceModelDeployments: aiDeployments
     logAnalyticsName: logAnalyticsWorkspaceResolvedName
     applicationInsightsName: !useApplicationInsights
       ? ''
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
     searchServiceName: resolvedSearchServiceName
-    searchConnectionName: !useSearchService
-      ? ''
-      : !empty(searchConnectionName) ? searchConnectionName : 'search-service-connection'
+    appInsightConnectionName: 'appinsights-connection'
   }
 }
 
 var searchServiceEndpoint = !useSearchService
-      ? ''
-      : ai.outputs.searchServiceEndpoint
+  ? ''
+  : ai.outputs.searchServiceEndpoint
 
 // If bringing an existing AI project, set up the log analytics workspace here
-module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(aiExistingProjectConnectionString)) {
+module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
   name: 'logAnalytics'
   scope: rg
   params: {
@@ -201,15 +190,47 @@ module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(aiExistingPro
     name: logAnalyticsWorkspaceResolvedName
   }
 }
+var existingProjEndpoint = !empty(azureExistingAIProjectResourceId) ? format('https://{0}.services.ai.azure.com/api/projects/{1}',split(azureExistingAIProjectResourceId, '/')[8], split(azureExistingAIProjectResourceId, '/')[10]) : ''
 
-var hostName = empty(aiExistingProjectConnectionString) && !empty(ai.outputs.discoveryUrl) && contains(ai.outputs.discoveryUrl, '/') ? split(ai.outputs.discoveryUrl, '/')[2] : ''
-var projectConnectionString = empty(hostName)
-  ? aiExistingProjectConnectionString
-  : '${hostName};${subscription().subscriptionId};${rg.name};${projectName}'
+var projectResourceId = !empty(azureExistingAIProjectResourceId)
+  ? azureExistingAIProjectResourceId
+  : ai.outputs.projectResourceId
 
+var projectEndpoint = !empty(azureExistingAIProjectResourceId)
+  ? existingProjEndpoint
+  : ai.outputs.aiProjectEndpoint
+
+
+var resolvedApplicationInsightsName = !useApplicationInsights || !empty(azureExistingAIProjectResourceId)
+  ? ''
+  : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
+
+module monitoringMetricsContribuitorRoleAzureAIDeveloperRG 'core/security/appinsights-access.bicep' = if (!empty(resolvedApplicationInsightsName)) {
+  name: 'monitoringmetricscontributor-role-azureai-developer-rg'
+  scope: rg
+  params: {
+    principalType: 'ServicePrincipal'
+    appInsightsName: resolvedApplicationInsightsName
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+  }
+}
+
+resource existingProjectRG 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(azureExistingAIProjectResourceId) && contains(azureExistingAIProjectResourceId, '/')) {
+  name: split(azureExistingAIProjectResourceId, '/')[4]
+}
+
+module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
+  name: 'backend-role-azureai-developer-existing-project-rg'
+  scope: existingProjectRG
+  params: {
+    principalType: 'ServicePrincipal'
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee' 
+  }
+}
 
 //Container apps host and api
-// Container apps host
+// Container apps host (including container registry)
 module containerApps 'core/host/container-apps.bicep' = {
   name: 'container-apps'
   scope: rg
@@ -218,12 +239,11 @@ module containerApps 'core/host/container-apps.bicep' = {
     location: location
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
-    logAnalyticsWorkspaceName: empty(aiExistingProjectConnectionString)
+    logAnalyticsWorkspaceName: empty(azureExistingAIProjectResourceId)
       ? ai.outputs.logAnalyticsWorkspaceName
       : logAnalytics.outputs.name
   }
 }
-
 
 // API app
 module api 'api.bicep' = {
@@ -235,101 +255,88 @@ module api 'api.bicep' = {
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     containerAppsEnvironmentName: containerApps.outputs.environmentName
-    projectConnectionString: projectConnectionString
+    azureExistingAIProjectResourceId: projectResourceId
     chatDeploymentName: chatDeploymentName
-    embeddingDeploymentName: embeddingDeploymentName
-    embeddingDeploymentDimensions: embeddingDeploymentDimensions
     aiSearchIndexName: aiSearchIndexName
     searchServiceEndpoint: searchServiceEndpoint
-    projectName: projectName
+    embeddingDeploymentName: embeddingDeploymentName
+    embeddingDeploymentDimensions: embeddingDeploymentDimensions
+    projectName: aiProjectName
+    enableAzureMonitorTracing: enableAzureMonitorTracing
+    azureTracingGenAIContentRecordingEnabled: azureTracingGenAIContentRecordingEnabled
+    projectEndpoint: projectEndpoint
   }
 }
 
 
-module userAcrRolePush 'core/security/role.bicep' = {
-  name: 'user-role-acr-push'
-  scope: rg
-  params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: '8311e382-0749-4cb8-b61a-304f252e45ec'
-  }
-}
-
-module userAcrRolePull 'core/security/role.bicep' = {
-  name: 'user-role-acr-pull'
-  scope: rg
-  params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-  }
-}
-
-module userRoleDataScientist 'core/security/role.bicep' = {
-  name: 'user-role-data-scientist'
-  scope: rg
-  params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: 'f6c7c914-8db3-469d-8ca1-694a8f32e121'
-  }
-}
-
-module userRoleSecretsReader 'core/security/role.bicep' = {
-  name: 'user-role-secrets-reader'
-  scope: rg
-  params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: 'ea01e6af-a1c1-4350-9563-ad00f8c72ec5'
-  }
-}
 
 module userRoleAzureAIDeveloper 'core/security/role.bicep' = {
   name: 'user-role-azureai-developer'
   scope: rg
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalType: 'User'
+    principalId: principalId
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
   }
 }
 
-module backendRoleAzureAIDeveloperRG 'core/security/role.bicep' = {
-  name: 'backend-role-azureai-developer-rg'
+module userCognitiveServicesUser  'core/security/role.bicep' = if (empty(azureExistingAIProjectResourceId)) {
+  name: 'user-role-cognitive-services-user'
   scope: rg
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
+    principalType: 'User'
+    principalId: principalId
+    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
   }
 }
 
-var resolvedApplicationInsightsName = !useApplicationInsights || !empty(aiExistingProjectConnectionString)
-  ? ''
-  : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-
-module monitoringMetricsContribuitorRoleAzureAIDeveloperRG 'core/security/appinsights-access.bicep' = if (!empty(resolvedApplicationInsightsName)) {
-  name: 'monitoringmetricscontributor-role-azureai-developer-rg'
+module userAzureAIUser  'core/security/role.bicep' = if (empty(azureExistingAIProjectResourceId)) {
+  name: 'user-role-azure-ai-user'
   scope: rg
   params: {
-    appInsightsName: resolvedApplicationInsightsName
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalType: 'User'
+    principalId: principalId
+    roleDefinitionId: '53ca6127-db72-4b80-b1b0-d745d6d5456d'
   }
 }
 
-resource existingProjectRG 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(aiExistingProjectConnectionString) && contains(aiExistingProjectConnectionString, ';')) {
-  name: split(aiExistingProjectConnectionString, ';')[2]
-}
 
-module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bicep' = if (!empty(aiExistingProjectConnectionString)) {
-  name: 'backend-role-azureai-developer-existing-project-rg'
+module userCognitiveServicesUser2  'core/security/role.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
+  name: 'user-role-cognitive-services-user2'
   scope: existingProjectRG
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
-    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
+    principalType: 'User'
+    principalId: principalId
+    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
   }
 }
+
+module backendCognitiveServicesUser  'core/security/role.bicep' = if (empty(azureExistingAIProjectResourceId)) {
+  name: 'backend-role-cognitive-services-user'
+  scope: rg
+  params: {
+    principalType: 'ServicePrincipal'
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
+  }
+}
+
+module backendCognitiveServicesUser2  'core/security/role.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
+  name: 'backend-role-cognitive-services-user2'
+  scope: existingProjectRG
+  params: {
+    principalType: 'ServicePrincipal'
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
+  }
+}
+
 
 module backendRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (useSearchService) {
   name: 'backend-role-azure-index-data-contributor-rg'
   scope: rg
   params: {
+    principalType: 'ServicePrincipal'
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
@@ -339,6 +346,7 @@ module backendRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSe
   name: 'backend-role-azure-index-data-reader-rg'
   scope: rg
   params: {
+    principalType: 'ServicePrincipal'
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   }
@@ -348,6 +356,7 @@ module backendRoleSearchServiceContributorRG 'core/security/role.bicep' = if (us
   name: 'backend-role-azure-search-service-contributor-rg'
   scope: rg
   params: {
+    principalType: 'ServicePrincipal'
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
   }
@@ -357,7 +366,8 @@ module userRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (use
   name: 'user-role-azure-index-data-contributor-rg'
   scope: rg
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalType: 'User'
+    principalId: principalId
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
 }
@@ -366,7 +376,8 @@ module userRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSearc
   name: 'user-role-azure-index-data-reader-rg'
   scope: rg
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalType: 'User'
+    principalId: principalId
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   }
 }
@@ -375,27 +386,39 @@ module userRoleSearchServiceContributorRG 'core/security/role.bicep' = if (useSe
   name: 'user-role-azure-search-service-contributor-rg'
   scope: rg
   params: {
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalType: 'User'
+    principalId: principalId
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
   }
 }
 
+module backendRoleAzureAIDeveloperRG 'core/security/role.bicep' = {
+  name: 'backend-role-azureai-developer-rg'
+  scope: rg
+  params: {
+    principalType: 'ServicePrincipal'
+    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
+  }
+}
 
 output AZURE_RESOURCE_GROUP string = rg.name
 
 // Outputs required for local development server
 output AZURE_TENANT_ID string = tenant().tenantId
-output AZURE_AIPROJECT_CONNECTION_STRING string = projectConnectionString
+output AZURE_EXISTING_AIPROJECT_RESOURCE_ID string = projectResourceId
 output AZURE_AI_CHAT_DEPLOYMENT_NAME string = chatDeploymentName
 output AZURE_AI_EMBED_DEPLOYMENT_NAME string = embeddingDeploymentName
 output AZURE_AI_SEARCH_INDEX_NAME string = aiSearchIndexName
 output AZURE_AI_SEARCH_ENDPOINT string = searchServiceEndpoint
 output AZURE_AI_EMBED_DIMENSIONS string = embeddingDeploymentDimensions
+output AZURE_EXISTING_AIPROJECT_ENDPOINT string = projectEndpoint
+output ENABLE_AZURE_MONITOR_TRACING bool = enableAzureMonitorTracing
+output AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED bool = azureTracingGenAIContentRecordingEnabled
 
 // Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
 output SERVICE_API_IDENTITY_PRINCIPAL_ID string = api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output SERVICE_API_URI string = api.outputs.SERVICE_API_URI
-output SERVICE_API_IMAGE_NAME string = api.outputs.SERVICE_API_IMAGE_NAME
 output SERVICE_API_ENDPOINTS array = ['${api.outputs.SERVICE_API_URI}']

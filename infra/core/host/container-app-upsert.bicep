@@ -89,6 +89,5 @@ module app 'container-app.bicep' = {
 }
 
 output defaultDomain string = app.outputs.defaultDomain
-output imageName string = app.outputs.imageName
 output name string = app.outputs.name
 output uri string = app.outputs.uri
