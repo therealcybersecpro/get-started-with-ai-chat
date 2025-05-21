@@ -118,7 +118,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
       serviceBinds: !empty(serviceBinds) ? serviceBinds : null
       containers: [
         {
-          image: 'azdtemplate.azurecr.io/get-start-with-ai-chat:test'
+          image: 'azdtemplate.azurecr.io/get-start-with-ai-chat:latest'
           name: containerName
           env: env
           resources: {
