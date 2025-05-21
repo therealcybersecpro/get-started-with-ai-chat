@@ -2,7 +2,7 @@
 
 name: azd-get-started-with-ai-chat
 metadata:
-  template: azd-get-started-with-ai-chat@0.0.1-beta
+  template: azd-get-started-with-ai-chat@1.0.0-beta
 
 hooks:
   postprovision:
@@ -44,4 +44,4 @@ pipeline:
     - AZURE_AI_EMBED_MODEL_NAME
     - AZURE_AI_EMBED_MODEL_FORMAT
     - AZURE_AI_EMBED_MODEL_VERSION
-    - AZURE_EXISTING_AIPROJECT_CONNECTION_STRING
+    - AZURE_EXISTING_AIPROJECT_RESOURCE_ID

@@ -173,6 +173,7 @@ module ai 'core/host/ai-environment.bicep' = if (empty(azureExistingAIProjectRes
       : !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
     searchServiceName: resolvedSearchServiceName
     appInsightConnectionName: 'appinsights-connection'
+    userPrincipalId: principalId
   }
 }
 

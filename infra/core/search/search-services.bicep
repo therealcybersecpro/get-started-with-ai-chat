@@ -2,8 +2,6 @@ metadata description = 'Creates an Azure AI Search instance.'
 param name string
 param location string = resourceGroup().location
 param tags object = {}
-param projectName string
-param serviceName string
 param sku object = {
   name: 'standard'
 }
@@ -42,8 +40,6 @@ var searchIdentityProvider = (sku.name == 'free') ? null : {
 }
 
 
-
-
 resource search 'Microsoft.Search/searchServices@2024-06-01-preview' = {
   name: name
   location: location
@@ -53,47 +49,16 @@ resource search 'Microsoft.Search/searchServices@2024-06-01-preview' = {
   }
   identity: searchIdentityProvider  
   properties: {
-    replicaCount: 1
-    partitionCount: 1
-    hostingMode: 'default'
-    publicNetworkAccess: 'enabled'
-    networkRuleSet: {
-      ipRules: []
-    }
-    encryptionWithCmk: {
-      enforcement: 'Unspecified'
-    }
-    disableLocalAuth: false
-    authOptions: {
-      apiKeyOnly: {}
-    }
-    semanticSearch: 'free'
-  }
-}
-
-resource aiServices 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = {
-  name: serviceName
-
-  resource project 'projects' existing = {
-    name: projectName
-
-    // AI Project Search Connection
-    resource searchConnection 'connections' = {
-      name: 'searchConnection'
-      // dependsOn: [project] is implicitly handled by 'parent: project'
-      properties: {
-        category: 'CognitiveSearch'
-        authType: 'ApiKey'
-        isSharedToAll: true
-        target: 'https://${search.name}.search.windows.net/' // search.name will resolve to searchServiceName
-        credentials: {
-          // This is valid because if this resource is deployed, 'search' is also deployed
-          // and 'search.name' (which is 'searchServiceName') is known.
-          key: search.listAdminKeys().primaryKey
-        }
-      }      
-    }
-
+    authOptions: authOptions
+    disableLocalAuth: disableLocalAuth
+    disabledDataExfiltrationOptions: disabledDataExfiltrationOptions
+    encryptionWithCmk: encryptionWithCmk
+    hostingMode: hostingMode
+    networkRuleSet: networkRuleSet
+    partitionCount: partitionCount
+    publicNetworkAccess: publicNetworkAccess
+    replicaCount: replicaCount
+    semanticSearch: semanticSearch
   }
 }
 

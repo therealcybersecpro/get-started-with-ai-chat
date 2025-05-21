@@ -19,6 +19,7 @@ param searchServiceName string = ''
 @description('The Application Insights connection name.')
 param appInsightConnectionName string
 param tags object = {}
+param userPrincipalId string
 
 module storageAccount '../storage/storage-account.bicep' = {
   name: 'storageAccount'
@@ -95,8 +96,8 @@ module cognitiveServices '../ai/cognitiveservices.bicep' = {
   }
 }
 
-module accountStorageRoleAssignment  '../../core/security/role.bicep' = {
-  name: 'ai-account-role-storage-contributor'
+module backendStorageBlobDataContributorRoleAssignment  '../../core/security/role.bicep' = {
+  name: 'backend-role-storage-blob-data-contributor'
   params: {
     principalType: 'ServicePrincipal'
     principalId: cognitiveServices.outputs.accountPrincipalId
@@ -104,11 +105,11 @@ module accountStorageRoleAssignment  '../../core/security/role.bicep' = {
   }
 }
 
-module projectStorageRoleAssignment  '../../core/security/role.bicep' = {
-  name: 'ai-project-role-storage-contributor'
+module userStorageBlobDataContributorRoleAssignment  '../../core/security/role.bicep' = {
+  name: 'user-role-storage-blob-data-contributor'
   params: {
-    principalType: 'ServicePrincipal'
-    principalId: cognitiveServices.outputs.projectPrincipalId
+    principalType: 'User'
+    principalId: userPrincipalId
     roleDefinitionId: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor
   }
 }
@@ -123,8 +124,6 @@ module searchService '../search/search-services.bicep' =
       name: searchServiceName
       semanticSearch: 'free'
       authOptions: { aadOrApiKey: { aadAuthFailureMode: 'http401WithBearerChallenge'}}
-      projectName: cognitiveServices.outputs.projectName
-      serviceName: cognitiveServices.outputs.serviceName
     }
   }
 
