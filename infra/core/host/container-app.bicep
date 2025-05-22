@@ -48,13 +48,13 @@ param identityName string = ''
 @allowed([ 'None', 'SystemAssigned', 'UserAssigned' ])
 param identityType string = 'None'
 
-@description('The name of the container image')
-param imageName string = ''
 
 @description('Specifies if Ingress is enabled for the container app')
 param ingressEnabled bool = true
 
 param revisionMode string = 'Single'
+
+param dependOn string = ''
 
 @description('The secrets required for the container')
 @secure()
@@ -68,8 +68,6 @@ param serviceType string = ''
 
 @description('The target port for the container')
 param targetPort int = 80
-
-param dependOn string = '' 
 
 resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
   name: identityName
@@ -120,7 +118,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
       serviceBinds: !empty(serviceBinds) ? serviceBinds : null
       containers: [
         {
-          image: 'azdtemplate.azurecr.io/get-start-with-ai-chat:latest'
+          image: 'azdtemplate.azurecr.io/get-start-with-ai-chat:test'
           name: containerName
           env: env
           resources: {
@@ -143,7 +141,6 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01'
 
 output defaultDomain string = containerAppsEnvironment.properties.defaultDomain
 output identityPrincipalId string = normalizedIdentityType == 'None' ? '' : (empty(identityName) ? app.identity.principalId : userIdentity.properties.principalId)
-output imageName string = imageName
 output name string = app.name
 output serviceBind object = !empty(serviceType) ? { serviceId: app.id, name: name } : {}
 output uri string = ingressEnabled ? 'https://${app.properties.configuration.ingress.fqdn}' : ''

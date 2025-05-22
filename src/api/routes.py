@@ -4,13 +4,14 @@
 import json
 import logging
 import os
+from typing import Dict
 
 import fastapi
 from fastapi import Request, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from azure.ai.inference.prompts import PromptTemplate
-from azure.ai.inference import ChatCompletionsClient
+from azure.ai.inference.aio import ChatCompletionsClient
 
 from .util import get_logger, ChatRequest
 from .search_index_manager import SearchIndexManager
@@ -40,19 +41,32 @@ def get_chat_model(request: Request) -> str:
 def get_search_index_namager(request: Request) -> SearchIndexManager:
     return request.app.state.search_index_manager
 
+def serialize_sse_event(data: Dict) -> str:
+    return f"data: {json.dumps(data)}\n\n"
+
 
 @router.get("/", response_class=HTMLResponse)
 async def index_name(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        "index.html", 
+        {
+            "request": request,
+        }
+    )
 
-
-@router.post("/chat/stream")
+@router.post("/chat")
 async def chat_stream_handler(
     chat_request: ChatRequest,
     chat_client: ChatCompletionsClient = Depends(get_chat_client),
     model_deployment_name: str = Depends(get_chat_model),
     search_index_manager: SearchIndexManager = Depends(get_search_index_namager)
 ) -> fastapi.responses.StreamingResponse:
+    
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream"
+    }    
     if chat_client is None:
         raise Exception("Chat client not initialized")
 
@@ -72,27 +86,29 @@ async def chat_stream_handler(
             else:
                 logger.info("Unable to find the relevant information in the index for the request.")
         try:
+            accumulated_message = ""
             chat_coroutine = await chat_client.complete(
                 model=model_deployment_name, messages=prompt_messages + messages, stream=True
             )
             async for event in chat_coroutine:
                 if event.choices:
                     first_choice = event.choices[0]
-                    yield (
-                        json.dumps(
-                            {
-                                "delta": {
-                                    "content": first_choice.delta.content,
-                                    "role": first_choice.delta.role,
-                                }
-                            },
-                            ensure_ascii=False,
-                        )
-                        + "\n"
-                    )
+                    if first_choice.delta.content:
+                        message = first_choice.delta.content
+                        accumulated_message += message
+                        yield serialize_sse_event({
+                                        "content": message,
+                                        "type": "message",
+                                    }
+                                )
+
+            yield serialize_sse_event({
+                "content": accumulated_message,
+                "type": "completed_message",
+            })                        
         except BaseException as e:
             error_processed = False
-            response = "<div class=\"error\">Error: {}</div>"
+            response = "There is an error!"
             try:
                 if '(content_filter)' in e.args[0]:
                     rai_dict = e.response.json()['error']['innererror']['content_filter_result']
@@ -105,25 +121,20 @@ async def chat_stream_handler(
                                 errors.append(k)
                     error_text = f"We have found the next safety issues in the response: {', '.join(errors)}"
                     logger.error(error_text)
-                    response = response.format(error_text)
+                    response = error_text
                     error_processed = True
             except BaseException:
                 pass
             if not error_processed:
                 error_text = str(e)
                 logger.error(error_text)
-                response = response.format(error_text)
-            yield (
-                json.dumps(
-                    {
-                        "delta": {
+                response = error_text
+            yield serialize_sse_event({
                             "content": response,
-                            "role": "agent",
-                        }
-                    },
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
+                            "type": "completed_message",
+                        })
+        yield serialize_sse_event({
+            "type": "stream_end"
+            })
 
-    return fastapi.responses.StreamingResponse(response_stream())
+    return StreamingResponse(response_stream(), headers=headers)
