@@ -88,16 +88,16 @@ To enable logging to a file, navigate to `src/Dockerfile` and edit the code to u
 The provided file logging implementation is intended for development purposes only, specifically for testing with a single client/worker. It should not be used in production environments after the R&D phase.
 
 #### Tracing to Azure Monitor
-To enable tracing to Azure Monitor, navigate to `src/Dockerfile` and modify the value of `ENABLE_AZURE_MONITOR_TRACING` environment variable to true:
+To enable tracing to Azure Monitor, add the following to the `.env` file:
 ```code
-ENV ENABLE_AZURE_MONITOR_TRACING=true
+ENABLE_AZURE_MONITOR_TRACING=true
 ```
 Note that the optional App Insights resource is required for tracing to Azure Monitor (it is created by default).
 
-To enable message contents to be included in the traces, set the following environment variable to true in the same Dockerfile. Note that the messages may contain personally identifiable information.
+To enable message contents to be included in the traces,add the following to the `.env` file. Note that the messages may contain personally identifiable information.
 
 ```code
-ENV AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
+AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=true
 ```
 
 #### Configurable Deployment Settings
@@ -214,33 +214,40 @@ You can optionally use a local development server to test app changes locally. M
     ```shell
     python -m pip install -r requirements.txt
     ```
-
-4. Duplicate `src/.env.sample` and name to `.env`.
-
-5. Fill in the environment variables in `.env`.
  
-6. Tracing and logging:
+4. Install [Node.js](https://nodejs.org/) (v20 or later).
 
-    To enable logging to a file, add the `APP_LOG_FILE` environment variable definition to the `.env` file in the `src` directory. See [Logging](#logging) for more information. As an example, to log to a file named `app.log` add the following to the `.env` file:
-    ```code
-    APP_LOG_FILE=app.log
+5. Navigate to the frontend directory and setup for React UI:
+
+    ```shell
+    cd src/frontend
+    pnpm run setup
     ```
 
-    To enable Azure Monitor tracing, add the `ENABLE_AZURE_MONITOR_TRACING` and `AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED` environment variable definitions to the `.env` file in the `src` directory. See [Tracing to Azure Monitor](#tracing-to-azure-monitor) for more information. As an example, to enable tracing to Azure Monitor without tracing message contents, add the following to the '.env' file:
-    ```code
-    ENABLE_AZURE_MONITOR_TRACING=true
-    AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED=false
-    ```
-
-7. Run the local server:
+6. Run the local server:
 
     ```shell
     python -m uvicorn "api.main:create_app" --factory --reload
     ```
 
-8. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
+7. Click 'http://127.0.0.1:8000' in the terminal, which should open a new tab in the browser.
 
-10. Enter your message in the box.
+8.  Enter your message in the box.
+
+(Optional) if you have changes in `src/frontend`, execute:
+
+    ```shell
+    pnpm build
+    ```
+
+The build output will be placed in the `../api/static/react` directory, where the backend can serve it.
+
+(Optional) If you have changes in `gunicorn.conf.py`, execute:
+
+    ```shell
+    python gunicorn.conf.py    
+    ```
+
 </details>
 
 
