@@ -108,7 +108,7 @@ export function AgentPreview({ agentDetails }: IAgentPreviewProps): ReactNode {
       // If server returned e.g. 400 or 500, that’s not an exception, but we can check manually:
       if (!response.ok) {
         console.error(
-          "[ChatClient] Response not OK:",
+          "[ChatClient] The server has returned an error:",
           response.status,
           response.statusText
         );

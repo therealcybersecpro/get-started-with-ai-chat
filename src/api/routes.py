@@ -93,14 +93,14 @@ async def chat_stream_handler(
             async for event in chat_coroutine:
                 if event.choices:
                     first_choice = event.choices[0]
-                    message = first_choice.delta.content
-                    message = "" if message is None else message
-                    accumulated_message += message
-                    yield serialize_sse_event({
-                                    "content": message,
-                                    "type": "message",
-                                }
-                            )
+                    if first_choice.delta.content:
+                        message = first_choice.delta.content
+                        accumulated_message += message
+                        yield serialize_sse_event({
+                                        "content": message,
+                                        "type": "message",
+                                    }
+                                )
 
             yield serialize_sse_event({
                 "content": accumulated_message,
@@ -108,7 +108,7 @@ async def chat_stream_handler(
             })                        
         except BaseException as e:
             error_processed = False
-            response = "{}"
+            response = "There is an error!"
             try:
                 if '(content_filter)' in e.args[0]:
                     rai_dict = e.response.json()['error']['innererror']['content_filter_result']
@@ -121,14 +121,14 @@ async def chat_stream_handler(
                                 errors.append(k)
                     error_text = f"We have found the next safety issues in the response: {', '.join(errors)}"
                     logger.error(error_text)
-                    response = response.format(error_text)
+                    response = error_text
                     error_processed = True
             except BaseException:
                 pass
             if not error_processed:
                 error_text = str(e)
                 logger.error(error_text)
-                response = response.format(error_text)
+                response = error_text
             yield serialize_sse_event({
                             "content": response,
                             "type": "completed_message",
