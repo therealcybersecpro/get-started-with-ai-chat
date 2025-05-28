@@ -141,6 +141,13 @@ kustomize
 *.data
 .runs/
 **/node_modules/
-package-lock.json
 src/api/api/agents/writer/.promptflow/
 flow.flex.yaml
+
+# Node.js dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log
+
+# React build output
+src/api/static/react/
