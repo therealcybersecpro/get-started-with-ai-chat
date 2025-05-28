@@ -141,6 +141,7 @@ kustomize
 *.data
 .runs/
 **/node_modules/
+package-lock.json
 src/api/api/agents/writer/.promptflow/
 flow.flex.yaml
 
@@ -151,3 +152,4 @@ node_modules/
 
 # React build output
 src/api/static/react/
+.vscode/launch.json
