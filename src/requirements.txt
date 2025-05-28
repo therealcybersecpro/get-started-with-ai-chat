@@ -1,6 +1,6 @@
 fastapi==0.111.0
 uvicorn[standard]==0.29.0
-gunicorn==22.0.0
+gunicorn==23.0.0
 azure-identity==1.19.0
 aiohttp==3.11.1
 azure-ai-inference==1.0.0b9
@@ -11,3 +11,4 @@ azure-core==1.31.0  # other versions might not compatible
 azure-core-tracing-opentelemetry
 azure-monitor-opentelemetry>=1.6.9
 opentelemetry-sdk
+setuptools==80.9.0
