@@ -14,6 +14,9 @@ param projectName string
 param enableAzureMonitorTracing bool
 param azureTracingGenAIContentRecordingEnabled bool
 param projectEndpoint string
+param webAppUsername string
+@secure()
+param webAppPassword string
 
 resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
@@ -65,7 +68,19 @@ var env = [
     name: 'AZURE_EXISTING_AIPROJECT_ENDPOINT'
     value: projectEndpoint
   }
+  { name: 'WEB_APP_USERNAME'
+    secretRef: 'web-app-username'
+  }
+  { 
+    name: 'WEB_APP_PASSWORD'
+    secretRef: 'web-app-password'
+  }
 ]
+
+var secrets = {
+  'web-app-username': webAppUsername
+  'web-app-password': webAppPassword
+}
 
 
 module app 'core/host/container-app-upsert.bicep' = {
@@ -78,6 +93,7 @@ module app 'core/host/container-app-upsert.bicep' = {
     containerAppsEnvironmentName: containerAppsEnvironmentName
     targetPort: 50505
     env: env
+    secrets: secrets
     projectName: projectName
   }
 }

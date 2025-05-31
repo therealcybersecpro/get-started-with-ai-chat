@@ -18,6 +18,37 @@ from .search_index_manager import SearchIndexManager
 from azure.core.exceptions import HttpResponseError
 
 
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from typing import Optional
+import secrets
+
+security = HTTPBasic()
+
+
+def authenticate(credentials: HTTPBasicCredentials = Depends(security)) -> None: 
+    username = os.getenv("WEB_APP_USERNAME")
+    password = os.getenv("WEB_APP_PASSWORD")
+    
+    if not username or not password:
+        logger.error("Username or password environment variables not set.")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Authentication not configured.",
+        )
+    
+    correct_username = secrets.compare_digest(credentials.username, username)
+    correct_password = secrets.compare_digest(credentials.password, password)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return
+
+
+
 logger = get_logger(
     name="azureaiapp_routes",
     log_level=logging.INFO,
@@ -46,7 +77,7 @@ def serialize_sse_event(data: Dict) -> str:
 
 
 @router.get("/", response_class=HTMLResponse)
-async def index_name(request: Request):
+async def index_name(request: Request, _ = Depends(authenticate)):
     return templates.TemplateResponse(
         "index.html", 
         {
@@ -59,7 +90,8 @@ async def chat_stream_handler(
     chat_request: ChatRequest,
     chat_client: ChatCompletionsClient = Depends(get_chat_client),
     model_deployment_name: str = Depends(get_chat_model),
-    search_index_manager: SearchIndexManager = Depends(get_search_index_namager)
+    search_index_manager: SearchIndexManager = Depends(get_search_index_namager),
+    _ = Depends(authenticate)
 ) -> fastapi.responses.StreamingResponse:
     
     headers = {
