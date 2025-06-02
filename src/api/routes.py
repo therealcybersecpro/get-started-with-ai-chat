@@ -26,12 +26,20 @@ import secrets
 security = HTTPBasic()
 
 
-def authenticate(credentials: HTTPBasicCredentials = Depends(security)) -> None: 
+def authenticate(credentials: Optional[HTTPBasicCredentials] = Depends(security) if os.getenv("RUNNING_IN_PRODUCTION") else None) -> None:
+    # Only perform authentication if RUNNING_IN_PRODUCTION is set to "true" (case-insensitive)
+    if not os.getenv("RUNNING_IN_PRODUCTION"):
+        # Not in production mode (or RUNNING_IN_PRODUCTION is not "true"),
+        # so authentication is skipped.
+        logger.info("Skipping authentication: RUNNING_IN_PRODUCTION is not 'true'.")
+        
+        return
+
     username = os.getenv("WEB_APP_USERNAME")
     password = os.getenv("WEB_APP_PASSWORD")
-    
+
     if not username or not password:
-        logger.error("Username or password environment variables not set.")
+        logger.error("WEB_APP_USERNAME or WEB_APP_PASSWORD environment variables not set for production authentication.")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication not configured.",
@@ -46,8 +54,6 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)) -> None:
             headers={"WWW-Authenticate": "Basic"},
         )
     return
-
-
 
 logger = get_logger(
     name="azureaiapp_routes",
