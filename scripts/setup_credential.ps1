@@ -91,7 +91,7 @@ if (-not $activeRevision) {
     exit 1
 }
 
-Write-Host "♻️ Restarting revision $activeRevision...."
+Write-Host "♻️ Restarting revision ca-api-hokq6p6gw7b3c--c8hivx8 ca-api-hokq6p6gw7b3c--0000001...."
 
 
 # Restart the active revision
@@ -102,3 +102,5 @@ az containerapp revision restart `
     > $null 2>&1
 
 Write-Host "✅ Successfully restarted the revision: $activeRevision"
+
+exit 0

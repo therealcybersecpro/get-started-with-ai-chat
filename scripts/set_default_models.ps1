@@ -44,6 +44,13 @@ foreach ($key in $defaultEnvVars.Keys) {
     azd env set $key $envVars[$key]
 }
 
+# --- If we do not use existing AI Project, we don't deploy models, so skip validation ---
+$resourceId = [System.Environment]::GetEnvironmentVariable('AZURE_EXISTING_AIPROJECT_RESOURCE_ID', "Process")
+if (-not [string]::IsNullOrEmpty($resourceId)) {
+    Write-Host "✅ AZURE_EXISTING_AIPROJECT_RESOURCE_ID is set, skipping model deployment validation."
+    exit 0
+}
+
 $chatDeployment = @{
     name = $envVars.AZURE_AI_CHAT_DEPLOYMENT_NAME
     model = @{
