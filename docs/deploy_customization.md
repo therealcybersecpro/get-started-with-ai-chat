@@ -65,12 +65,12 @@ azd env set AZURE_AI_CHAT_MODEL_VERSION 2
 
 ### Setting capacity and deployment SKU
 
-For quota regions, you may find yourself needing to modify the default capacity and deployment SKU.
+For quota regions, you may find yourself needing to modify the default capacity and deployment SKU using environment variables as below. The default tokens per minute deployed in this template is 80,000 for chat model and 50,000 for the embedding model that is enough for all operations.  If the region has quota less the these numbers, you will be prompt to input a lower capacity up to the available limit.
 
-Change the capacity of the chat deployment:
+Change the default capacity (in thousands of tokens per minute) of the chat deployment:
 
 ```shell
-azd env set AZURE_AI_CHAT_DEPLOYMENT_CAPACITY 10
+azd env set AZURE_AI_CHAT_DEPLOYMENT_CAPACITY 50
 ```
 
 Change the SKU of the chat deployment:
@@ -79,10 +79,10 @@ Change the SKU of the chat deployment:
 azd env set AZURE_AI_CHAT_DEPLOYMENT_SKU Standard
 ```
 
-Change the capacity of the embeddings deployment:
+Change the default capacity (in thousands of tokens per minute) of the embeddings deployment:
 
 ```shell
-azd env set AZURE_AI_EMBED_DEPLOYMENT_CAPACITY 10
+azd env set AZURE_AI_EMBED_DEPLOYMENT_CAPACITY 50
 ```
 
 Change the SKU of the embeddings deployment:
