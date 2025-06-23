@@ -25,4 +25,7 @@ resource monitoringMetricsContributorRoleAssignment 'Microsoft.Authorization/rol
     roleDefinitionId: monitoringMetricsContributorRole
     principalId: principalId
   }
+  dependsOn: [
+    resourceGroup() // Explicitly declare dependency on the resource group
+  ]    
 }

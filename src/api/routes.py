@@ -26,24 +26,15 @@ import secrets
 security = HTTPBasic()
 
 
-def authenticate(credentials: Optional[HTTPBasicCredentials] = Depends(security) if os.getenv("RUNNING_IN_PRODUCTION") else None) -> None:
-    # Only perform authentication if RUNNING_IN_PRODUCTION is set to "true" (case-insensitive)
-    if not os.getenv("RUNNING_IN_PRODUCTION"):
-        # Not in production mode (or RUNNING_IN_PRODUCTION is not "true"),
-        # so authentication is skipped.
-        logger.info("Skipping authentication: RUNNING_IN_PRODUCTION is not 'true'.")
-        
+username = os.getenv("WEB_APP_USERNAME")
+password = os.getenv("WEB_APP_PASSWORD")
+basic_auth = username and password
+
+def authenticate(credentials: Optional[HTTPBasicCredentials] = Depends(security)) -> None:
+
+    if not basic_auth:
+        logger.info("Skipping authentication: WEB_APP_USERNAME or WEB_APP_PASSWORD not set.")
         return
-
-    username = os.getenv("WEB_APP_USERNAME")
-    password = os.getenv("WEB_APP_PASSWORD")
-
-    if not username or not password:
-        logger.error("WEB_APP_USERNAME or WEB_APP_PASSWORD environment variables not set for production authentication.")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Authentication not configured.",
-        )
     
     correct_username = secrets.compare_digest(credentials.username, username)
     correct_password = secrets.compare_digest(credentials.password, password)
@@ -54,6 +45,8 @@ def authenticate(credentials: Optional[HTTPBasicCredentials] = Depends(security)
             headers={"WWW-Authenticate": "Basic"},
         )
     return
+
+auth_dependency = Depends(authenticate) if basic_auth else None
 
 logger = get_logger(
     name="azureaiapp_routes",
@@ -83,7 +76,7 @@ def serialize_sse_event(data: Dict) -> str:
 
 
 @router.get("/", response_class=HTMLResponse)
-async def index_name(request: Request, _ = Depends(authenticate)):
+async def index_name(request: Request, _ = auth_dependency):
     return templates.TemplateResponse(
         "index.html", 
         {
@@ -97,7 +90,7 @@ async def chat_stream_handler(
     chat_client: ChatCompletionsClient = Depends(get_chat_client),
     model_deployment_name: str = Depends(get_chat_model),
     search_index_manager: SearchIndexManager = Depends(get_search_index_namager),
-    _ = Depends(authenticate)
+    _ = auth_dependency
 ) -> fastapi.responses.StreamingResponse:
     
     headers = {
