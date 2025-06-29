@@ -65,9 +65,9 @@ azd env set AZURE_AI_CHAT_MODEL_VERSION 2
 
 ### Setting models, capacity, and deployment SKU
 
-By default, this template sets the agent model deployment capacity to 80,000 tokens per minute. For AI Search, the embedding model requires a capacity of 50,000 tokens per minute. Due to current Bicep limitations, only the chat model quota is validated when you select a location during `azd up`. If you want to change these defaults, set the desired region using `azd env set AZURE_LOCATION <region>` (for example, `eastus`) to bypass quota validation. Follow the instructions below to update the model settings before running `azd up`.
+By default, this template sets the chat model deployment capacity to 80,000 tokens per minute. For AI Search, the embedding model requires a capacity of 50,000 tokens per minute. Due to current Bicep limitations, only the chat model quota is validated when you select a location during `azd up`. If you want to change these defaults, set the desired region using `azd env set AZURE_LOCATION <region>` (for example, `eastus`) to bypass quota validation. Follow the instructions below to update the model settings before running `azd up`.
 
-Change the default capacity (in thousands of tokens per minute) of the agent deployment:
+Change the default capacity (in thousands of tokens per minute) of the chat deployment:
 
 ```shell
 azd env set AZURE_AI_CHAT_DEPLOYMENT_CAPACITY 50
