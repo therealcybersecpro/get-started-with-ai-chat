@@ -241,6 +241,7 @@ module containerApps 'core/host/container-apps.bicep' = {
   params: {
     name: 'app'
     location: location
+    containerRegistryName: '${abbrs.containerRegistryRegistries}${resourceToken}'
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
     logAnalyticsWorkspaceName: empty(azureExistingAIProjectResourceId)
@@ -260,12 +261,12 @@ module api 'api.bicep' = {
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     azureExistingAIProjectResourceId: projectResourceId
+    containerRegistryName: containerApps.outputs.registryName
     chatDeploymentName: chatDeploymentName
     aiSearchIndexName: aiSearchIndexName
     searchServiceEndpoint: searchServiceEndpoint
     embeddingDeploymentName: embeddingDeploymentName
     embeddingDeploymentDimensions: embeddingDeploymentDimensions
-    projectName: aiProjectName
     enableAzureMonitorTracing: enableAzureMonitorTracing
     azureTracingGenAIContentRecordingEnabled: azureTracingGenAIContentRecordingEnabled
     projectEndpoint: projectEndpoint
@@ -415,3 +416,5 @@ output SERVICE_API_IDENTITY_PRINCIPAL_ID string = api.outputs.SERVICE_API_IDENTI
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output SERVICE_API_URI string = api.outputs.SERVICE_API_URI
 output SERVICE_API_ENDPOINTS array = ['${api.outputs.SERVICE_API_URI}']
+output SEARCH_CONNECTION_ID string = ''
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
