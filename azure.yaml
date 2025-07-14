@@ -3,7 +3,9 @@
 name: azd-get-started-with-ai-chat
 metadata:
   template: azd-get-started-with-ai-chat@1.0.0
-
+requiredVersions:
+  azd: ">=1.14.0"
+  
 hooks:
   preup:
     posix:
