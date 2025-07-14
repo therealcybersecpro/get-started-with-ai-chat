@@ -1,33 +1,48 @@
 
-# Azure AI Foundry Starter Template: Deployment customization
+# Getting Started with Chat Using Azure AI Foundry: Deployment customization
 
-This document describes how to customize the deployment of the Azure AI Foundry Starter Template. Once you follow the steps here, you can run `azd up` as described in the [Deploying](./../README.md#deploying-steps) steps.
+This document describes how to customize the deployment of Chat with Azure AI Foundry. Once you follow the steps here, you can run `azd up` as described in the [Deploying](./../README.md#deploying-steps) steps.
 
-* [Disabling resources](#disabling-resources)
+* [Use existing resources](#use-existing-resources)
+* [Enabling and disabling resources provision](#enabling-and-disabling-resources-provision)
 * [Customizing resource names](#customizing-resource-names)
 * [Customizing model deployments](#customizing-model-deployments)
 
-## Disabling resources
+## Use existing resources
+Be default, this template provisions a new resource group along with other resources.   If you already have provisioned Azure AI Foundry and Azure AI Foundry Project (not a hub based project), you might reuse these resources by setting:
 
-* To disable AI Search, run `azd env set USE_SEARCH_SERVICE false`
+To find the value:
+
+1. Open the azure portal
+2. Navigate to the AI foundry resource
+3. Select projects in the sidebar and open the desired project
+4. Oo to 'Resource Management' -> 'Properties' in the sidebar
+5. Copy the value from 'Resource ID'
+
+```shell
+azd env set AZURE_EXISTING_AIPROJECT_RESOURCE_ID "/subscriptions/<your-azure-subid>/resourceGroups/<your-rg>/providers/Microsoft.CognitiveServices/accounts/<your-ai-services-account-name>/projects/<your-project-name>"
+```
+
+Notices that Application Insight and AI Search will not be created in this scenario.
+
+
+## Enabling and disabling resources provision
+
+By default, provisioning Application Insights is enabled, and AI Search is disabled.  The default setting can be changed by:
+
+* To enable AI Search, run `azd env set USE_AZURE_AI_SEARCH_SERVICE true`
 * To disable Application Insights, run `azd env set USE_APPLICATION_INSIGHTS false`
-* To disable Container Registry, run `azd env set USE_CONTAINER_REGISTRY false`
 
-Then run `azd up` to deploy the remaining resources.
+Once you disable these resources, they will not be deployed when you run `azd up`.
 
 ## Customizing resource names
 
-By default this template will use a default naming convention to prevent naming collisions within Azure.
-To override default naming conventions the following can be set.
+By default, this template will use a naming convention with unique strings to prevent naming collisions within Azure.
+To override default naming conventions, the following keys can be set:
 
-* `AZURE_EXISTING_AIPROJECT_CONNECTION_STRING` - An existing connection string to be use.   If specified, resources for AI Foundry Hub,  AI Foundry Project, and Azure AI service will not be created.
-* `AZURE_AIHUB_NAME` - The name of the AI Foundry Hub resource
-* `AZURE_AIPROJECT_NAME` - The name of the AI Foundry Project
-* `AZURE_AISERVICES_NAME` - The name of the Azure AI service
-* `AZURE_SEARCH_SERVICE_NAME` - The name of the Azure Search service
+* `AZURE_AIPROJECT_NAME` - The name of the Azure AI Foundry project
+* `AZURE_AISERVICES_NAME` - The name of the Azure AI Foundry
 * `AZURE_STORAGE_ACCOUNT_NAME` - The name of the Storage Account
-* `AZURE_KEYVAULT_NAME` - The name of the Key Vault
-* `AZURE_CONTAINER_REGISTRY_NAME` - The name of the container registry
 * `AZURE_APPLICATION_INSIGHTS_NAME` - The name of the Application Insights instance
 * `AZURE_LOG_ANALYTICS_WORKSPACE_NAME` - The name of the Log Analytics workspace used by Application Insights
 
@@ -35,15 +50,11 @@ To override any of those resource names, run `azd env set <key> <value>` before 
 
 ## Customizing model deployments
 
+For more information on the Azure OpenAI models and non-Microsoft models that can be used in your deployment, view the [list of models](https://learn.microsoft.com/azure/ai-services/agents/concepts/model-region-support).
+
 To customize the model deployments, you can set the following environment variables:
 
 ### Using a different chat model
-
-Change the chat deployment name:
-
-```shell
-azd env set AZURE_AI_CHAT_DEPLOYMENT_NAME Phi-3.5-MoE-instruct
-```
 
 Change the chat model format (either OpenAI or Microsoft):
 
@@ -54,13 +65,13 @@ azd env set AZURE_AI_CHAT_MODEL_FORMAT Microsoft
 Change the chat model name:
 
 ```shell
-azd env set AZURE_AI_CHAT_MODEL_NAME Phi-3.5-MoE-instruct
+azd env set AZURE_AI_CHAT_MODEL_NAME gpt-4o-mini
 ```
 
 Set the version of the chat model:
 
 ```shell
-azd env set AZURE_AI_CHAT_MODEL_VERSION 2
+azd env set AZURE_AI_CHAT_MODEL_VERSION 2024-07-18
 ```
 
 ### Setting models, capacity, and deployment SKU
@@ -89,16 +100,3 @@ Change the SKU of the embeddings deployment:
 
 ```shell
 azd env set AZURE_AI_EMBED_DEPLOYMENT_SKU Standard
-```
-
-## Bringing an existing AI project resource
-
-If you have an existing AI project resource, you can bring it into the Azure AI Foundry Starter Template by setting the following environment variable:
-
-```shell
-azd env set AZURE_EXISTING_AIPROJECT_CONNECTION_STRING "<connection-string>"
-```
-
-You can find the connection string on the overview page of your Azure AI project.
-
-If you do not have a deployment named "gpt-4o-mini" in your existing AI project, you should either create one in Azure AI Foundry or follow the steps in [Customizing model deployments](#customizing-model-deployments) to specify a different model.
