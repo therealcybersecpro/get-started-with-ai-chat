@@ -76,7 +76,6 @@ param embeddingDeploymentDimensions string = '100'
 @description('Version of the embedding model to deploy')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#embeddings-models
-@secure()
 param embedModelVersion string = '1'
 
 @description('Sku of the embeddings model deployment')
@@ -184,7 +183,7 @@ module ai 'core/host/ai-environment.bicep' = if (empty(azureExistingAIProjectRes
 
 var searchServiceEndpoint = !useSearchService
   ? ''
-  : ai.outputs.searchServiceEndpoint
+  : empty(azureExistingAIProjectResourceId) ? ai!.outputs.searchServiceEndpoint : ''
 
 // If bringing an existing AI project, set up the log analytics workspace here
 module logAnalytics 'core/monitor/loganalytics.bicep' = if (!empty(azureExistingAIProjectResourceId)) {
@@ -200,12 +199,11 @@ var existingProjEndpoint = !empty(azureExistingAIProjectResourceId) ? format('ht
 
 var projectResourceId = !empty(azureExistingAIProjectResourceId)
   ? azureExistingAIProjectResourceId
-  : ai.outputs.projectResourceId
+  : ai!.outputs.projectResourceId
 
 var projectEndpoint = !empty(azureExistingAIProjectResourceId)
   ? existingProjEndpoint
-  : ai.outputs.aiProjectEndpoint
-
+  : ai!.outputs.aiProjectEndpoint
 
 var resolvedApplicationInsightsName = !useApplicationInsights || !empty(azureExistingAIProjectResourceId)
   ? ''
@@ -246,8 +244,8 @@ module containerApps 'core/host/container-apps.bicep' = {
     tags: tags
     containerAppsEnvironmentName: 'containerapps-env-${resourceToken}'
     logAnalyticsWorkspaceName: empty(azureExistingAIProjectResourceId)
-      ? ai.outputs.logAnalyticsWorkspaceName
-      : logAnalytics.outputs.name
+      ? ai!.outputs.logAnalyticsWorkspaceName
+      : logAnalytics!.outputs.name
   }
 }
 
