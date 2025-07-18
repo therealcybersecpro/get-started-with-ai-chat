@@ -37,7 +37,7 @@ The app code runs in Azure Container apps to process the user input and generate
 
 Github Codespaces and Dev Containers both allow you to download and deploy the code for development. You can also continue with local development. Once you have selected your environment, [click here to launch the development and deployment guide](./docs/deployment.md)
 
-
+**After deployment, try these [sample questions](./docs/sample_questions.md) to test your web application.**
 
 ## Other Features
 Once you have the agents and the web app working, you are encouraged to try one of the following:
