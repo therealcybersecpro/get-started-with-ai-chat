@@ -1,12 +1,12 @@
 # Sample Questions
 
-By default, the web application does not use tools. To enable Azure AI Search instead, set the environment variable before the first time of provision and deployment:
+By default, the web application does not use RAG. To enable Azure AI Search, set the environment variable before the first time of provision and deployment:
 
 ```shell
 azd env set USE_AZURE_AI_SEARCH_SERVICE true
 ```
 
-## General Knowledge Questions (No Tools Required)
+## General Knowledge Questions
 For questions that don't require file search or specific data, here are some **Sample Prompts**:
 
 - What are the key differences between Python and JavaScript programming languages?
