@@ -16,11 +16,11 @@ For questions that don't require file search or specific data, here are some **S
 - What are some best practices for writing clean and maintainable code?
 
 ## Samples for Azure AI Search
-To help you get started for Aure AI Search, here are some **Sample Prompts**:
+To help you get started for Azure AI Search, here are some **Sample Prompts**:
 
-- Which products have wireless charging capabilities and what are their battery life specifications?
-- Find products designed for comfort and temperature control - what features do they offer?
-- What care and maintenance instructions are available for electronic products with waterproof features?
-- Show me products that integrate with smart home devices or have AI-powered features.
-- What troubleshooting guides and warranty information are available for augmented reality products?
+- What camping equipment do you have available under $100?
+- Which tents are suitable for 2-4 people and what are their key features?
+- What hiking gear would you recommend for a multi-day backpacking trip?
+- Which products have the best waterproof or weather-resistant features?
+- What are the weight and portability specifications for your camping gear?
 
