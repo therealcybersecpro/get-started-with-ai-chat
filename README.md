@@ -4,29 +4,43 @@
 
 <div style="text-align:center;">
 
-[**SOLUTION OVERVIEW**](#solution-overview) \| [**GETTING STARTED**](#getting-started) \| [**RESOURCE CLEAN-UP**](#resource-clean-up) \|  [**OTHER FEATURES**](#other-features) \| [**GUIDANCE**](#guidance) 
+[**SOLUTION OVERVIEW**](#solution-overview) \| [**GETTING STARTED**](#getting-started) \| [**LOCAL DEVELOPMENT**](#local-development) \| [**RESOURCE CLEAN-UP**](#resource-clean-up) \|  [**OTHER FEATURES**](#other-features) \| [**GUIDANCE**](#guidance) 
 
 </div>
 
 ## Solution Overview
 
-This solution contains a simple chat application that is deployed to Azure Container Apps. There are instructions for deployment through GitHub Codespaces, VS Code Dev Containers, and your local development environment.
+This solution deploys a web-based chat application with AI capabilities running in Azure Container App.
+
+The application leverages Azure AI Foundry projects and Azure AI services to provide intelligent chat functionality. It supports both direct AI model interaction and Retrieval-Augmented Generation (RAG) using Azure AI Search for knowledge retrieval from uploaded files, enabling it to generate responses with citations. The solution also includes built-in monitoring capabilities with tracing to ensure easier troubleshooting and optimized performance.
+
+This solution creates an Azure AI Foundry project and Azure AI services. More details about the resources can be found in the [resources](#resources) documentation. There are options to enable RAG, logging, tracing, and monitoring.
+
+Instructions are provided for deployment through GitHub Codespaces, VS Code Dev Containers, and your local development environment.
+
+### Solution Architecture
+
+![Architecture diagram showing that user input is provided to the Azure Container App, which contains the app code. With user identity and resource access through managed identity, the input is used to form a response. The input and the Azure monitor are able to use the Azure resources deployed in the solution: Application Insights, Azure AI Project, Azure AI Services, Azure AI Hub, Storage account, Azure Container App, Container Registry, Key Vault, Log Analytics Workspace, and Search Service.](docs/images/architecture.png)
+
+The app code runs in Azure Container Apps to process the user input and generate a response to the user. It leverages Azure AI projects and Azure AI services, including the model and search service.
+
+### Key Features
+
+• **[Knowledge Retrieval](./docs/RAG.md)**: The AI chat application supports Retrieval-Augmented Generation (RAG) using Azure AI Search to retrieve knowledge from uploaded files, enabling contextual responses with citations.
+
+• **[Customizable AI Model Deployment](./docs/deploy_customization.md#customizing-model-deployments)**: The solution allows users to configure and deploy AI models, such as gpt-4o-mini, with options to adjust model capacity, deployment configurations, and knowledge retrieval methods.
+
+• **[Built-in Monitoring and Tracing](./docs/other_features.md#tracing-and-monitoring)**: Integrated monitoring capabilities, including Azure Monitor and Application Insights, enable tracing and logging for easier troubleshooting and performance optimization.
+
+• **[Flexible Deployment Options](./docs/deployment.md)**: The solution supports deployment through GitHub Codespaces, VS Code Dev Containers, or local environments, providing flexibility for different development workflows.
+
+Here is a screenshot showing the chatting web application with requests and responses between the system and the user:
+
+![Screenshot of chatting web application showing requests and responses between assistants and the user.](docs/images/webapp_screenshot.png)
 
 **WARNING**: This template, the application code and configuration it contains, has been built to showcase Microsoft Azure specific services and tools. We strongly advise our customers not to make this code part of their production environments without implementing or enabling additional security features.  
 
 For a more comprehensive list of best practices and security recommendations for Intelligent Applications, [visit our official documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/).
-
-### Key Features
-
-This solution creates an Azure AI Foundry, project and connected resources including Azure AI Services, AI Search and more. Here is a screenshot:
-![Screenshot of chatting web application showing requests and responses between assistants and the user.](docs/images/webapp_screenshot.png)
-
-More details about the resources can be found in the [resources](#resources) documentation. There are options to enable Retrieval-Augmented Generation (RAG) and use logging, tracing, and monitoring. 
-
-#### Architecture diagram
-
-![Architecture diagram showing that user input is provided to the Azure Container App, which contains the app code. With user identity and resource access through managed identity, the input is used to form a response. The input and the Azure monitor are able to use the Azure resources deployed in the solution: Application Insights, Azure AI Project, Azure AI Services, Azure AI Hub, Storage account, Azure Container App, Container Registry, Key Vault, Log Analytics Workspace, and Search Service.](docs/images/architecture.png)
-The app code runs in Azure Container apps to process the user input and generate a response to the user. It leverages Azure AI projects and Azure AI services, including the model and search service.
         
 ## Getting Started
 
@@ -39,8 +53,23 @@ Github Codespaces and Dev Containers both allow you to download and deploy the c
 
 **After deployment, try these [sample questions](./docs/sample_questions.md) to test your web application.**
 
+## Local Development
+
+For developers who want to run the application locally or customize the chat application:
+
+• **[Local Development Guide](./docs/deployment.md#local-development)** - Set up a local development environment, customize the frontend and backend, modify AI model configurations, and test your changes locally.
+
+This guide covers:
+
+• Environment setup and prerequisites
+• Running the development server locally  
+• Frontend customization and backend communication
+• AI model and RAG configuration
+• Embedding file upload
+• Testing and debugging your application
+
 ## Other Features
-Once you have the agents and the web app working, you are encouraged to try one of the following:
+Once you have the web app working, you are encouraged to try one of the following:
 
 - **[Tracing and Monitoring](./docs/other_features.md#tracing-and-monitoring)** - View console logs in Azure portal and App Insights tracing in Azure AI Foundry for debugging and performance monitoring.
 
