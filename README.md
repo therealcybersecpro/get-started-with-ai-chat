@@ -4,7 +4,7 @@
 
 <div style="text-align:center;">
 
-[**SOLUTION OVERVIEW**](#solution-overview) \| [**GETTING STARTED**](#getting-started) \| [**LOCAL DEVELOPMENT**](#local-development) \| [**RESOURCE CLEAN-UP**](#resource-clean-up) \|  [**OTHER FEATURES**](#other-features) \| [**GUIDANCE**](#guidance) 
+[**SOLUTION OVERVIEW**](#solution-overview) \| [**GETTING STARTED**](#getting-started) \| [**LOCAL DEVELOPMENT**](#local-development) \| [**RESOURCE CLEAN-UP**](#resource-clean-up) \|  [**GUIDANCE**](#guidance) 
 
 </div>
 
@@ -67,9 +67,6 @@ This guide covers:
 • AI model and RAG configuration
 • Embedding file upload
 • Testing and debugging your application
-
-## Other Features
-Once you have the web app working, you are encouraged to try one of the following:
 
 - **[Tracing and Monitoring](./docs/other_features.md#tracing-and-monitoring)** - View console logs in Azure portal and App Insights tracing in Azure AI Foundry for debugging and performance monitoring.
 
